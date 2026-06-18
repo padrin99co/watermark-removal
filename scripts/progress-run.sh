@@ -67,7 +67,7 @@ render_progress() {
   if [ "$rendered_once" -eq 1 ]; then
     printf '\033[2A'
   fi
-  printf '\r\033[K%s\n' "$status"
+  printf '\r\033[KImage: %s | %s\n' "$label" "$status"
   line="$(printf 'Progress: [%s%s%s%s] %d%%' "$yellow_bar" "$fill" "$reset" "$remainder" "$percent")"
   printf '\r\033[K%s\n' "$line"
   rendered_once=1

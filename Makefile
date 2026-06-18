@@ -13,7 +13,7 @@ MASK ?= $(CLEAN_DIR)/$(BASENAME)-mask.png
 OUTPUT ?= $(CLEAN_DIR)/$(IMAGE)
 PYTHON ?= python3
 CODEX ?= codex
-CODEX_MODEL ?= gpt-5.5
+CODEX_MODEL ?= gpt-5.4-mini
 CODEX_LOG ?= $(LOG_DIR)/$(BASENAME)-codex-run.txt
 PROGRESS_RUN ?= scripts/progress-run.sh
 
