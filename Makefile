@@ -9,13 +9,14 @@ MASK ?= $(CLEAN_DIR)/$(BASENAME)-mask.png
 OUTPUT ?= $(CLEAN_DIR)/$(BASENAME)-clean.jpg
 PYTHON ?= python3
 
-.PHONY: help install mask remove test clean open
+.PHONY: help install mask remove process test clean open
 
 help:
 	@echo "Targets:"
 	@echo "  make install              Install CLI from apps/"
 	@echo "  make mask RECT=x,y,w,h    Create mask in clean-images/"
-	@echo "  make remove               Create clean image from mask"
+	@echo "  make remove               Create clean image; creates mask first if missing"
+	@echo "  make process RECT=x,y,w,h Create mask, remove watermark, and open result"
 	@echo "  make open                 Open cleaned output"
 	@echo "  make test                 Run tests"
 	@echo "  make clean                Remove generated masks/outputs"
@@ -29,19 +30,23 @@ help:
 install:
 	cd $(APP_DIR) && $(PYTHON) -m pip install --user -e .
 
-mask:
+mask: $(MASK)
+
+$(MASK):
 	mkdir -p $(CLEAN_DIR)
 	cd $(APP_DIR) && watermark-remover --i-understand mask-rect \
 		../$(RAW_DIR)/$(IMAGE) \
 		../$(MASK) \
 		--rect $(RECT)
 
-remove:
+remove: $(MASK)
 	mkdir -p $(CLEAN_DIR)
 	cd $(APP_DIR) && watermark-remover --i-understand remove \
 		../$(RAW_DIR)/$(IMAGE) \
 		../$(MASK) \
 		../$(OUTPUT)
+
+process: mask remove open
 
 open:
 	xdg-open $(OUTPUT)
