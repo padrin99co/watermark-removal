@@ -29,6 +29,7 @@ step_index=0
 bar_width=24
 last_log_line=""
 last_progress=""
+last_wait_line=""
 
 printf '%s\n' "$label"
 
@@ -52,14 +53,17 @@ while kill -0 "$pid" 2>/dev/null; do
   empty=$(( bar_width - filled ))
   bar="$(printf '%*s' "$filled" '' | tr ' ' '#')$(printf '%*s' "$empty" '' | tr ' ' '-')"
   current_log_line="$(grep -E '^(codex|exec|imagegen|Done\\.|Saved|Wrote|Verified|The |I |Using |Generated)' "$log_file" | tail -n 1 || true)"
-  if [ -n "$current_log_line" ] && [ "$current_log_line" != "$last_log_line" ]; then
-    printf '%s\n' "$current_log_line"
-    last_log_line="$current_log_line"
+  if [ -n "$current_log_line" ]; then
+    last_log_line="$(printf '%s' "$current_log_line" | tr '\n\r\t' '   ' | cut -c 1-90)"
   fi
-  progress="[$bar] ${percent}% waiting for Codex result"
-  if [ "$progress" != "$last_progress" ]; then
-    printf '%s\n' "$progress"
-    last_progress="$progress"
+  if [ -n "$last_log_line" ]; then
+    wait_line="[$bar] ${percent}% waiting for Codex result | ${last_log_line}"
+  else
+    wait_line="[$bar] ${percent}% waiting for Codex result"
+  fi
+  if [ "$wait_line" != "$last_wait_line" ]; then
+    printf '%s\n' "$wait_line"
+    last_wait_line="$wait_line"
   fi
   sleep 5
 done
