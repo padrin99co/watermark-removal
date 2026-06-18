@@ -7,3 +7,5 @@ __pycache__/
 !.env.example
 clean-images/*
 !clean-images/.gitkeep
+logs/*
+!logs/.gitkeep

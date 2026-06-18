@@ -1,6 +1,7 @@
 APP_DIR := apps
 RAW_DIR := raw-images
 CLEAN_DIR := clean-images
+LOG_DIR := logs
 
 -include .env
 export
@@ -13,7 +14,7 @@ OUTPUT ?= $(CLEAN_DIR)/$(IMAGE)
 PYTHON ?= python3
 CODEX ?= codex
 CODEX_MODEL ?= gpt-5.5
-CODEX_LOG ?= $(CLEAN_DIR)/$(BASENAME)-codex-run.txt
+CODEX_LOG ?= $(LOG_DIR)/$(BASENAME)-codex-run.txt
 PROGRESS_RUN ?= scripts/progress-run.sh
 
 .PHONY: help install mask remove codex-request process test clean open
@@ -35,6 +36,7 @@ help:
 	@echo "  MASK=$(MASK)"
 	@echo "  OUTPUT=$(OUTPUT)"
 	@echo "  CODEX_MODEL=$(CODEX_MODEL)"
+	@echo "  CODEX_LOG=$(CODEX_LOG)"
 
 install:
 	cd $(APP_DIR) && $(PYTHON) -m pip install --user -e .
@@ -52,6 +54,7 @@ mask: check-image
 
 remove: check-image
 	mkdir -p $(CLEAN_DIR)
+	mkdir -p $(LOG_DIR)
 	@$(PROGRESS_RUN) "$(IMAGE)" $(CODEX) exec -C . --sandbox workspace-write -m $(CODEX_MODEL) \
 		--image $(RAW_DIR)/$(IMAGE) \
 		--output-last-message $(CODEX_LOG) \
@@ -80,5 +83,6 @@ test:
 	cd $(APP_DIR) && $(PYTHON) -m pytest -q
 
 clean:
-	rm -f $(CLEAN_DIR)/*-mask.png $(CLEAN_DIR)/*-codex-run.txt
+	rm -f $(CLEAN_DIR)/*-mask.png
 	find $(CLEAN_DIR) -maxdepth 1 -type f ! -name '.gitkeep' -delete
+	rm -f $(LOG_DIR)/*-codex-run.txt
