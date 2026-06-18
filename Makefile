@@ -46,15 +46,15 @@ check-image:
 	@test -f "$(RAW_DIR)/$(IMAGE)" || (echo "error: image not found: $(RAW_DIR)/$(IMAGE)" && exit 2)
 
 mask: check-image
-	mkdir -p $(CLEAN_DIR)
+	@mkdir -p $(CLEAN_DIR)
 	cd $(APP_DIR) && watermark-remover --i-understand mask-rect \
 		../$(RAW_DIR)/$(IMAGE) \
 		../$(MASK) \
 		--rect $(RECT)
 
 remove: check-image
-	mkdir -p $(CLEAN_DIR)
-	mkdir -p $(LOG_DIR)
+	@mkdir -p $(CLEAN_DIR)
+	@mkdir -p $(LOG_DIR)
 	@$(PROGRESS_RUN) "$(IMAGE)" $(CODEX) exec -C . --sandbox workspace-write -m $(CODEX_MODEL) \
 		--image $(RAW_DIR)/$(IMAGE) \
 		--output-last-message $(CODEX_LOG) \
@@ -64,7 +64,7 @@ remove: check-image
 	@echo "Wrote: $(OUTPUT)"
 
 remove-api: check-image mask
-	mkdir -p $(CLEAN_DIR)
+	@mkdir -p $(CLEAN_DIR)
 	@test -n "$$OPENAI_API_KEY" || (echo "error: OPENAI_API_KEY is required for make remove-api" && exit 2)
 	cd $(APP_DIR) && watermark-remover --i-understand remove-ai \
 		../$(RAW_DIR)/$(IMAGE) \
