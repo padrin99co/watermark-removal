@@ -2,11 +2,12 @@ APP_DIR := apps
 RAW_DIR := raw-images
 CLEAN_DIR := clean-images
 
-IMAGE ?= 1_capital-place-capital-place_20170410041740_35444.jpg
+IMAGE ?= $(notdir $(firstword $(wildcard $(RAW_DIR)/*)))
 BASENAME := $(basename $(notdir $(IMAGE)))
 RECT ?= 20,30,180,60
 MASK ?= $(CLEAN_DIR)/$(BASENAME)-mask.png
 OUTPUT ?= $(CLEAN_DIR)/$(BASENAME)-clean.jpg
+AI_OUTPUT ?= $(CLEAN_DIR)/$(BASENAME)-clean-ai.png
 PYTHON ?= python3
 
 .PHONY: help install mask remove process test clean open
@@ -26,25 +27,33 @@ help:
 	@echo "  RECT=$(RECT)"
 	@echo "  MASK=$(MASK)"
 	@echo "  OUTPUT=$(OUTPUT)"
+	@echo "  AI_OUTPUT=$(AI_OUTPUT)"
 
 install:
 	cd $(APP_DIR) && $(PYTHON) -m pip install --user -e .
 
-mask: $(MASK)
+check-image:
+	@test -n "$(IMAGE)" || (echo "error: no image found in $(RAW_DIR)/" && exit 2)
+	@test -f "$(RAW_DIR)/$(IMAGE)" || (echo "error: image not found: $(RAW_DIR)/$(IMAGE)" && exit 2)
 
-$(MASK):
+mask: check-image
 	mkdir -p $(CLEAN_DIR)
 	cd $(APP_DIR) && watermark-remover --i-understand mask-rect \
 		../$(RAW_DIR)/$(IMAGE) \
 		../$(MASK) \
 		--rect $(RECT)
 
-remove: $(MASK)
+remove: check-image mask
 	mkdir -p $(CLEAN_DIR)
-	cd $(APP_DIR) && watermark-remover --i-understand remove \
-		../$(RAW_DIR)/$(IMAGE) \
-		../$(MASK) \
-		../$(OUTPUT)
+	@if [ -f "$(AI_OUTPUT)" ]; then \
+		echo "Using existing AI-cleaned image: $(AI_OUTPUT)"; \
+		$(PYTHON) -c "from PIL import Image; Image.open('$(AI_OUTPUT)').convert('RGB').save('$(OUTPUT)', quality=95)"; \
+	else \
+		cd $(APP_DIR) && watermark-remover --i-understand remove \
+			../$(RAW_DIR)/$(IMAGE) \
+			../$(MASK) \
+			../$(OUTPUT); \
+	fi
 
 process: mask remove open
 
