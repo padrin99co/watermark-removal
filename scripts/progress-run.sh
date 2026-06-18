@@ -28,6 +28,7 @@ pid=$!
 step_index=0
 bar_width=24
 last_log_line=""
+last_progress=""
 
 printf '%s\n' "$label"
 
@@ -36,7 +37,11 @@ while kill -0 "$pid" 2>/dev/null && [ "$step_index" -lt "${#steps[@]}" ]; do
   filled=$(( percent * bar_width / 100 ))
   empty=$(( bar_width - filled ))
   bar="$(printf '%*s' "$filled" '' | tr ' ' '#')$(printf '%*s' "$empty" '' | tr ' ' '-')"
-  printf '\r[%s] %3d%% %s' "$bar" "$percent" "${steps[$step_index]}"
+  progress="[$bar] ${percent}% ${steps[$step_index]}"
+  if [ "$progress" != "$last_progress" ]; then
+    printf '%s\n' "$progress"
+    last_progress="$progress"
+  fi
   step_index=$((step_index + 1))
   sleep 5
 done
@@ -48,10 +53,14 @@ while kill -0 "$pid" 2>/dev/null; do
   bar="$(printf '%*s' "$filled" '' | tr ' ' '#')$(printf '%*s' "$empty" '' | tr ' ' '-')"
   current_log_line="$(grep -E '^(codex|exec|imagegen|Done\\.|Saved|Wrote|Verified|The |I |Using |Generated)' "$log_file" | tail -n 1 || true)"
   if [ -n "$current_log_line" ] && [ "$current_log_line" != "$last_log_line" ]; then
-    printf '\n%s\n' "$current_log_line"
+    printf '%s\n' "$current_log_line"
     last_log_line="$current_log_line"
   fi
-  printf '\r[%s] %3d%% waiting for Codex result' "$bar" "$percent"
+  progress="[$bar] ${percent}% waiting for Codex result"
+  if [ "$progress" != "$last_progress" ]; then
+    printf '%s\n' "$progress"
+    last_progress="$progress"
+  fi
   sleep 5
 done
 
@@ -62,9 +71,9 @@ set -e
 
 if [ "$status" -eq 0 ]; then
   bar="$(printf '%*s' "$bar_width" '' | tr ' ' '#')"
-  printf '\r[%s] 100%% done                \n' "$bar"
+  printf '[%s] 100%% done\n' "$bar"
 else
-  printf '\rfailed                         \n'
+  printf 'failed\n'
   cat "$log_file"
 fi
 
