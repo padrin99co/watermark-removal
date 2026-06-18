@@ -9,8 +9,7 @@ IMAGE ?= $(notdir $(firstword $(wildcard $(RAW_DIR)/*)))
 BASENAME := $(basename $(notdir $(IMAGE)))
 RECT ?= 20,30,180,60
 MASK ?= $(CLEAN_DIR)/$(BASENAME)-mask.png
-OUTPUT ?= $(CLEAN_DIR)/$(BASENAME)-clean.jpg
-AI_OUTPUT ?= $(CLEAN_DIR)/$(BASENAME)-clean-ai.png
+OUTPUT ?= $(CLEAN_DIR)/$(IMAGE)
 PYTHON ?= python3
 CODEX ?= codex
 CODEX_MODEL ?= gpt-5.5
@@ -34,7 +33,6 @@ help:
 	@echo "  RECT=$(RECT)"
 	@echo "  MASK=$(MASK)"
 	@echo "  OUTPUT=$(OUTPUT)"
-	@echo "  AI_OUTPUT=$(AI_OUTPUT)"
 	@echo "  CODEX_MODEL=$(CODEX_MODEL)"
 
 install:
@@ -56,23 +54,20 @@ remove: check-image
 	$(CODEX) exec -C . --sandbox workspace-write -m $(CODEX_MODEL) \
 		--image $(RAW_DIR)/$(IMAGE) \
 		--output-last-message $(CODEX_LOG) \
-		"Use the imagegen skill and Codex image editing to remove only the visible semi-transparent watermark/logo from $(RAW_DIR)/$(IMAGE). Save the cleaned PNG to $(AI_OUTPUT). Also save a JPEG copy to $(OUTPUT). Preserve the same source image dimensions, building, streetlight, sky, colors, perspective, and composition. Do not use OpenCV inpainting for the final output. Do not modify source code or Git. Finish only after both output files exist and verify their dimensions."
+		"Use the imagegen skill and Codex image editing to remove only the visible semi-transparent watermark/logo from $(RAW_DIR)/$(IMAGE). Save exactly one cleaned output to $(OUTPUT), keeping the same filename and extension as the source image. Preserve the same source image dimensions, building, streetlight, sky, colors, perspective, and composition. Do not use OpenCV inpainting for the final output. Do not modify source code or Git. Finish only after $(OUTPUT) exists and verify its dimensions match the source."
 	@test -f "$(OUTPUT)" || (echo "error: missing output: $(OUTPUT)" && exit 2)
-	@test -f "$(AI_OUTPUT)" || (echo "error: missing AI output: $(AI_OUTPUT)" && exit 2)
+	@$(PYTHON) -c "from PIL import Image; raw=Image.open('$(RAW_DIR)/$(IMAGE)'); out=Image.open('$(OUTPUT)'); assert out.size == raw.size, f'output size {out.size} != raw size {raw.size}'; print('Verified dimensions:', out.size)"
 	@echo "Wrote: $(OUTPUT)"
-	@echo "Wrote: $(AI_OUTPUT)"
 
 remove-api: check-image mask
 	mkdir -p $(CLEAN_DIR)
 	@test -n "$$OPENAI_API_KEY" || (echo "error: OPENAI_API_KEY is required for make remove-api" && exit 2)
 	cd $(APP_DIR) && watermark-remover --i-understand remove-ai \
 		../$(RAW_DIR)/$(IMAGE) \
-		../$(AI_OUTPUT)
-	$(PYTHON) -c "from PIL import Image; Image.open('$(AI_OUTPUT)').convert('RGB').save('$(OUTPUT)', quality=95)"
+		../$(OUTPUT)
 	@test -f "$(OUTPUT)" || (echo "error: missing output: $(OUTPUT)" && exit 2)
-	@test -f "$(AI_OUTPUT)" || (echo "error: missing AI output: $(AI_OUTPUT)" && exit 2)
+	@$(PYTHON) -c "from PIL import Image; raw=Image.open('$(RAW_DIR)/$(IMAGE)'); out=Image.open('$(OUTPUT)'); assert out.size == raw.size; print('Verified dimensions:', out.size)"
 	@echo "Wrote: $(OUTPUT)"
-	@echo "Wrote: $(AI_OUTPUT)"
 
 process: mask remove open
 
@@ -84,4 +79,5 @@ test:
 	cd $(APP_DIR) && $(PYTHON) -m pytest -q
 
 clean:
-	rm -f $(CLEAN_DIR)/*-mask.png $(CLEAN_DIR)/*-clean.jpg $(CLEAN_DIR)/*-clean-ai.png $(CLEAN_DIR)/*-codex-run.txt
+	rm -f $(CLEAN_DIR)/*-mask.png $(CLEAN_DIR)/*-codex-run.txt
+	find $(CLEAN_DIR) -maxdepth 1 -type f ! -name '.gitkeep' -delete

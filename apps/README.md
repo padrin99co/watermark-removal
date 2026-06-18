@@ -31,11 +31,11 @@ make remove
 make open
 ```
 
-`make remove` uses the local Codex CLI with `gpt-5.5` and Codex image editing. It writes both:
+`make remove` uses the local Codex CLI with `gpt-5.5` and Codex image editing. It writes the cleaned image with the same filename and extension as the raw image:
 
 ```text
-clean-images/<image-name>-clean-ai.png
-clean-images/<image-name>-clean.jpg
+raw-images/example.jpeg
+clean-images/example.jpeg
 ```
 
 If you prefer direct OpenAI API usage instead of Codex CLI, configure `.env`:
