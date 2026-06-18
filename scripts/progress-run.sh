@@ -26,10 +26,8 @@ trap 'rm -f "$log_file"' EXIT
 pid=$!
 
 step_index=0
-bar_width=40
+bar_width=24
 last_log_line=""
-last_wait_line=""
-rendered_once=0
 
 green=""
 yellow=""
@@ -53,24 +51,24 @@ terminal_width="$(tput cols 2>/dev/null || echo 100)"
 render_progress() {
   local percent="$1"
   local status="$2"
-  local filled empty fill remainder line max_status_width
+  local filled empty fill remainder line max_label_width max_status_width short_label
 
   filled=$(( percent * bar_width / 100 ))
   empty=$(( bar_width - filled ))
   fill="$(printf '%*s' "$filled" '' | tr ' ' ' ')"
   remainder="$(printf '%*s' "$empty" '' | tr ' ' '-')"
-  max_status_width=$(( terminal_width - 8 ))
+  max_label_width=34
+  short_label="$label"
+  if [ "${#short_label}" -gt "$max_label_width" ]; then
+    short_label="${short_label:0:$((max_label_width - 3))}..."
+  fi
+  max_status_width=$(( terminal_width - max_label_width - bar_width - 24 ))
   if [ "$max_status_width" -lt 16 ]; then
     max_status_width=16
   fi
   status="$(printf '%s' "$status" | tr '\n\r\t' '   ' | cut -c 1-"$max_status_width")"
-  if [ "$rendered_once" -eq 1 ]; then
-    printf '\033[2A'
-  fi
-  printf '\r\033[KImage: %s | %s\n' "$label" "$status"
-  line="$(printf 'Progress: [%s%s%s%s] %d%%' "$yellow_bar" "$fill" "$reset" "$remainder" "$percent")"
-  printf '\r\033[K%s\n' "$line"
-  rendered_once=1
+  line="$(printf '%-*s [%s%s%s%s] %3d%% %s' "$max_label_width" "$short_label" "$yellow_bar" "$fill" "$reset" "$remainder" "$percent" "$status")"
+  printf '\r\033[K%s' "$line"
 }
 
 while kill -0 "$pid" 2>/dev/null && [ "$step_index" -lt "${#steps[@]}" ]; do
@@ -101,17 +99,9 @@ status=$?
 set -e
 
 if [ "$status" -eq 0 ]; then
-  if [ "$rendered_once" -eq 1 ]; then
-    printf '\033[2A'
-  fi
   printf '\r\033[K%s[Done]%s %s\n' "$green" "$reset" "$label"
-  printf '\r\033[KProgress: [%s%s%s] 100%%\n' "$green_bar" "$(printf '%*s' "$bar_width" '' | tr ' ' ' ')" "$reset"
 else
-  if [ "$rendered_once" -eq 1 ]; then
-    printf '\033[2A'
-  fi
   printf '\r\033[K%s[Failed]%s %s\n' "$red" "$reset" "$label"
-  printf '\r\033[KProgress: [%s%s%s] failed\n' "$red_bar" "$(printf '%*s' "$bar_width" '' | tr ' ' ' ')" "$reset"
   cat "$log_file"
 fi
 
