@@ -27,16 +27,14 @@ pid=$!
 step_index=0
 bar_width=24
 
-while kill -0 "$pid" 2>/dev/null; do
+while kill -0 "$pid" 2>/dev/null && [ "$step_index" -lt "${#steps[@]}" ]; do
   percent=$(( (step_index + 1) * 100 / ${#steps[@]} ))
   filled=$(( percent * bar_width / 100 ))
   empty=$(( bar_width - filled ))
   bar="$(printf '%*s' "$filled" '' | tr ' ' '#')$(printf '%*s' "$empty" '' | tr ' ' '-')"
-  printf '\r%s -> [%s] %3d%% (%s)' "$label" "$bar" "$percent" "${steps[$step_index]}"
-  sleep 2
-  if [ "$step_index" -lt $((${#steps[@]} - 1)) ]; then
-    step_index=$((step_index + 1))
-  fi
+  printf '%s -> [%s] %3d%% (%s)\n' "$label" "$bar" "$percent" "${steps[$step_index]}"
+  step_index=$((step_index + 1))
+  sleep 5
 done
 
 set +e
@@ -46,9 +44,9 @@ set -e
 
 if [ "$status" -eq 0 ]; then
   bar="$(printf '%*s' "$bar_width" '' | tr ' ' '#')"
-  printf '\r%s -> [%s] 100%% (done)\n' "$label" "$bar"
+  printf '%s -> [%s] 100%% (done)\n' "$label" "$bar"
 else
-  printf '\n%s -> failed\n' "$label"
+  printf '%s -> failed\n' "$label"
   cat "$log_file"
 fi
 
