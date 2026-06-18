@@ -18,8 +18,11 @@ CODEX_LOG ?= $(LOG_DIR)/$(BASENAME)-codex-run.txt
 STATUS_LOG ?= $(LOG_DIR)/status.tsv
 PROGRESS_RUN ?= scripts/progress-run.sh
 STATUS_WRITER ?= scripts/status-log.py
+BATCH_RUN ?= scripts/batch-remove.sh
+CONCURRENCY ?= 2
+DRY_RUN ?= 0
 
-.PHONY: help install mask remove remove-api process status test clean open
+.PHONY: help install mask remove remove-api batch process status test clean open
 
 help:
 	@echo "Targets:"
@@ -27,6 +30,7 @@ help:
 	@echo "  make mask RECT=x,y,w,h    Create mask in clean-images/"
 	@echo "  make remove               Remove watermark with local Codex CLI"
 	@echo "  make remove-api           Remove watermark with OpenAI API key"
+	@echo "  make batch                Remove watermarks for all raw images"
 	@echo "  make process RECT=x,y,w,h Create mask, remove watermark, and open result"
 	@echo "  make open                 Open cleaned output"
 	@echo "  make status               Show image processing status summary"
@@ -41,6 +45,8 @@ help:
 	@echo "  CODEX_MODEL=$(CODEX_MODEL)"
 	@echo "  CODEX_LOG=$(CODEX_LOG)"
 	@echo "  STATUS_LOG=$(STATUS_LOG)"
+	@echo "  CONCURRENCY=$(CONCURRENCY)"
+	@echo "  DRY_RUN=$(DRY_RUN)"
 
 install:
 	cd $(APP_DIR) && $(PYTHON) -m pip install --user -e .
@@ -83,6 +89,12 @@ remove-api: check-image mask
 	@test -f "$(OUTPUT)" || (echo "error: missing output: $(OUTPUT)" && exit 2)
 	@$(PYTHON) -c "from PIL import Image; raw=Image.open('$(RAW_DIR)/$(IMAGE)'); out=Image.open('$(OUTPUT)'); assert out.size == raw.size; print('Verified dimensions:', out.size)"
 	@echo "Wrote: $(OUTPUT)"
+
+batch:
+	@mkdir -p $(CLEAN_DIR)
+	@mkdir -p $(LOG_DIR)
+	@RAW_DIR="$(RAW_DIR)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" $(BATCH_RUN)
+	@if [ "$(DRY_RUN)" != "1" ]; then $(MAKE) --no-print-directory status; fi
 
 process: mask remove open
 

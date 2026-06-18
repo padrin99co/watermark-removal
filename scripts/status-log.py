@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 from datetime import datetime
+import fcntl
 from pathlib import Path
 import sys
 
@@ -22,26 +23,29 @@ def main() -> int:
     updated_at = datetime.now().astimezone().isoformat(timespec="seconds")
 
     status_file.parent.mkdir(parents=True, exist_ok=True)
-    rows = []
-    if status_file.exists():
-        with status_file.open(newline="") as file:
-            rows = list(csv.DictReader(file, delimiter="\t"))
+    with status_file.open("a+", newline="") as file:
+        fcntl.flock(file.fileno(), fcntl.LOCK_EX)
+        file.seek(0)
+        rows = list(csv.DictReader(file, delimiter="\t")) if status_file.stat().st_size else []
 
-    next_row = {
-        "status": status,
-        "image": image,
-        "output": output,
-        "message": message,
-        "updated_at": updated_at,
-    }
-    rows = [row for row in rows if row.get("image") != image]
-    rows.append(next_row)
-    rows.sort(key=lambda row: row["image"])
+        next_row = {
+            "status": status,
+            "image": image,
+            "output": output,
+            "message": message,
+            "updated_at": updated_at,
+        }
+        rows = [row for row in rows if row.get("image") != image]
+        rows.append(next_row)
+        rows.sort(key=lambda row: row["image"])
 
-    with status_file.open("w", newline="") as file:
+        file.seek(0)
+        file.truncate()
         writer = csv.DictWriter(file, fieldnames=FIELDNAMES, delimiter="\t")
         writer.writeheader()
         writer.writerows(rows)
+        file.flush()
+        fcntl.flock(file.fileno(), fcntl.LOCK_UN)
 
     return 0
 

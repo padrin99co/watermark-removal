@@ -37,6 +37,24 @@ trap 'rm -f "$log_file"' EXIT
 
 update_status "In Progress" "Codex removal started"
 
+if [ "${PROGRESS_MODE:-}" = "batch" ]; then
+  printf "[In Progress] %s\n" "$label"
+  set +e
+  "$@" >"$log_file" 2>&1
+  status=$?
+  set -e
+
+  if [ "$status" -eq 0 ]; then
+    printf "%s[Done]%s %s\n" "$green" "$reset" "$label"
+  else
+    printf "%s[Failed]%s %s\n" "$red" "$reset" "$label"
+    update_status "Failed" "Codex removal failed"
+    cat "$log_file"
+  fi
+
+  exit "$status"
+fi
+
 "$@" >"$log_file" 2>&1 &
 pid=$!
 

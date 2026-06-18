@@ -55,7 +55,29 @@ make status
 During removal, the terminal shows progress like:
 
 ```text
-example.jpeg -> [########------------]  50% (editing watermark)
+example.jpeg                       [##########--------------]  45% editing watermark
+```
+
+## Batch Processing
+
+Process every image in `raw-images/`:
+
+```bash
+make batch
+```
+
+Run in parallel:
+
+```bash
+make batch CONCURRENCY=2
+```
+
+For 10K images, start with `CONCURRENCY=2` and increase carefully only if your machine, Codex account, and network remain stable. Reruns skip images that already have valid output in `clean-images/`.
+
+Preview the batch list without processing:
+
+```bash
+make batch DRY_RUN=1
 ```
 
 If you prefer direct OpenAI API usage instead of Codex CLI, configure `.env`:
