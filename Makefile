@@ -53,7 +53,12 @@ remove: check-image mask
 			../$(RAW_DIR)/$(IMAGE) \
 			../$(MASK) \
 			../$(OUTPUT); \
+		$(PYTHON) -c "from PIL import Image; Image.open('$(OUTPUT)').convert('RGB').save('$(AI_OUTPUT)')"; \
 	fi
+	@test -f "$(OUTPUT)" || (echo "error: missing output: $(OUTPUT)" && exit 2)
+	@test -f "$(AI_OUTPUT)" || (echo "error: missing AI output: $(AI_OUTPUT)" && exit 2)
+	@echo "Wrote: $(OUTPUT)"
+	@echo "Wrote: $(AI_OUTPUT)"
 
 process: mask remove open
 
