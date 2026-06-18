@@ -27,9 +27,23 @@ From the repository root, the shortest workflow is:
 
 ```bash
 make install
-make mask RECT=20,30,180,60
 make remove
 make open
+```
+
+`make remove` uses the local Codex CLI with `gpt-5.5` and Codex image editing. It writes both:
+
+```text
+clean-images/<image-name>-clean-ai.png
+clean-images/<image-name>-clean.jpg
+```
+
+If you prefer direct OpenAI API usage instead of Codex CLI, configure `.env`:
+
+```bash
+cp .env.example .env
+# edit .env and set OPENAI_API_KEY
+make remove-api
 ```
 
 Create a rectangular mask:
@@ -51,6 +65,14 @@ watermark-remover --i-understand remove \
 ```
 
 White pixels in the mask are inpainted. Black pixels are preserved.
+
+High-quality AI removal:
+
+```bash
+watermark-remover --i-understand remove-ai \
+  ../raw-images/input.jpg \
+  ../clean-images/input-clean-ai.png
+```
 
 ## Options
 

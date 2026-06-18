@@ -3,7 +3,13 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from watermark_remover.core import RemovalOptions, make_rectangle_mask, remove_with_mask
+from watermark_remover.core import (
+    DEFAULT_AI_PROMPT,
+    RemovalOptions,
+    make_rectangle_mask,
+    remove_with_ai,
+    remove_with_mask,
+)
 
 
 AUTHORIZED_USE_NOTICE = (
@@ -21,6 +27,10 @@ def main() -> None:
     try:
         if args.command == "mask-rect":
             make_rectangle_mask(args.image, args.output, [_parse_rect(rect) for rect in args.rect])
+            return
+
+        if args.command == "remove-ai":
+            remove_with_ai(args.image, args.output, model=args.model, prompt=args.prompt)
             return
 
         options = RemovalOptions(
@@ -71,6 +81,20 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     remove_parser.add_argument("--expand", type=int, default=2, help="Pixels to dilate mask. Default: 2.")
     remove_parser.add_argument("--feather", type=int, default=3, help="Mask blur threshold size. Default: 3.")
+
+    ai_parser = subparsers.add_parser("remove-ai", help="Remove watermark with OpenAI image editing.")
+    ai_parser.add_argument("image", type=Path, help="Source image path.")
+    ai_parser.add_argument("output", type=Path, help="Output PNG path.")
+    ai_parser.add_argument(
+        "--model",
+        default="gpt-image-2",
+        help="OpenAI image model. Default: gpt-image-2.",
+    )
+    ai_parser.add_argument(
+        "--prompt",
+        default=DEFAULT_AI_PROMPT,
+        help="Image edit prompt.",
+    )
 
     return parser
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import base64
+import os
 from pathlib import Path
 
 import cv2
@@ -14,6 +16,16 @@ class RemovalOptions:
     method: str = "telea"
     feather: int = 3
     expand: int = 2
+
+
+DEFAULT_AI_PROMPT = (
+    "Remove only the visible semi-transparent watermark/logo from this image. "
+    "Preserve the original photo composition, building facade line pattern, "
+    "streetlight, sky, colors, contrast, perspective, and dimensions. "
+    "Do not crop, zoom, add objects, add text, or stylize the image. "
+    "Reconstruct the covered pixels naturally so the image looks unchanged except "
+    "that the watermark is gone."
+)
 
 
 def remove_with_mask(
@@ -31,6 +43,58 @@ def remove_with_mask(
     result = cv2.inpaint(image, prepared_mask, options.radius, inpaint_method)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     Image.fromarray(result).save(output_path)
+
+
+def remove_with_ai(
+    image_path: Path,
+    output_path: Path,
+    *,
+    model: str = "gpt-image-2",
+    prompt: str = DEFAULT_AI_PROMPT,
+) -> None:
+    if not os.getenv("OPENAI_API_KEY"):
+        raise ValueError("OPENAI_API_KEY is required for AI watermark removal.")
+
+    try:
+        from openai import OpenAI
+    except ImportError as error:
+        raise ValueError(
+            "The openai package is required for AI watermark removal. Run `make install`."
+        ) from error
+
+    if not image_path.exists():
+        raise FileNotFoundError(f"Image not found: {image_path}")
+
+    with Image.open(image_path) as source_image:
+        source_size = source_image.size
+
+    client = OpenAI()
+    with image_path.open("rb") as image_file:
+        response = client.images.edit(
+            model=model,
+            image=image_file,
+            prompt=prompt,
+            quality="high",
+            size="auto",
+            output_format="png",
+        )
+
+    image_data = response.data[0].b64_json
+    if not image_data:
+        raise ValueError("AI image edit returned no image data.")
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    decoded = base64.b64decode(image_data)
+    temporary_path = output_path.with_suffix(".tmp.png")
+    temporary_path.write_bytes(decoded)
+
+    with Image.open(temporary_path) as edited:
+        edited = edited.convert("RGB")
+        if edited.size != source_size:
+            edited = edited.resize(source_size, Image.Resampling.LANCZOS)
+        edited.save(output_path)
+
+    temporary_path.unlink(missing_ok=True)
 
 
 def make_rectangle_mask(

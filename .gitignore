@@ -2,3 +2,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 *.py[cod]
+.env
+.env.*
+!.env.example
+clean-images/*
+!clean-images/.gitkeep
