@@ -30,6 +30,17 @@ bar_width=24
 last_log_line=""
 last_wait_line=""
 
+green=""
+yellow=""
+red=""
+reset=""
+if [ -t 1 ]; then
+  green="$(printf '\033[32m')"
+  yellow="$(printf '\033[33m')"
+  red="$(printf '\033[31m')"
+  reset="$(printf '\033[0m')"
+fi
+
 terminal_width="$(tput cols 2>/dev/null || echo 100)"
 label_width=34
 short_label="$label"
@@ -50,7 +61,7 @@ render_progress() {
     max_status_width=16
   fi
   status="$(printf '%s' "$status" | tr '\n\r\t' '   ' | cut -c 1-"$max_status_width")"
-  line="$(printf '%-*s -> [%s] %3d%% %s' "$label_width" "$short_label" "$bar" "$percent" "$status")"
+  line="$(printf '%-*s -> %s[%s]%s %3d%% %s' "$label_width" "$short_label" "$yellow" "$bar" "$reset" "$percent" "$status")"
   printf '\r\033[K%s' "$line"
 }
 
@@ -82,11 +93,9 @@ status=$?
 set -e
 
 if [ "$status" -eq 0 ]; then
-  render_progress 100 "done"
-  printf '\n'
+  printf '\r\033[K%s[Done]%s %s\n' "$green" "$reset" "$label"
 else
-  render_progress 95 "failed"
-  printf '\n'
+  printf '\r\033[K%s[Failed]%s %s\n' "$red" "$reset" "$label"
   cat "$log_file"
 fi
 
