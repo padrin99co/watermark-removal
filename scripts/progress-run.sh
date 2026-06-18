@@ -17,6 +17,7 @@ steps=(
   "saving output"
   "verifying result"
 )
+percents=(10 25 45 65 80 95)
 
 log_file="$(mktemp)"
 trap 'rm -f "$log_file"' EXIT
@@ -30,12 +31,21 @@ bar_width=24
 printf '%s\n' "$label"
 
 while kill -0 "$pid" 2>/dev/null && [ "$step_index" -lt "${#steps[@]}" ]; do
-  percent=$(( (step_index + 1) * 100 / ${#steps[@]} ))
+  percent="${percents[$step_index]}"
   filled=$(( percent * bar_width / 100 ))
   empty=$(( bar_width - filled ))
   bar="$(printf '%*s' "$filled" '' | tr ' ' '#')$(printf '%*s' "$empty" '' | tr ' ' '-')"
   printf '\r[%s] %3d%% %s' "$bar" "$percent" "${steps[$step_index]}"
   step_index=$((step_index + 1))
+  sleep 5
+done
+
+while kill -0 "$pid" 2>/dev/null; do
+  percent=95
+  filled=$(( percent * bar_width / 100 ))
+  empty=$(( bar_width - filled ))
+  bar="$(printf '%*s' "$filled" '' | tr ' ' '#')$(printf '%*s' "$empty" '' | tr ' ' '-')"
+  printf '\r[%s] %3d%% waiting for Codex result' "$bar" "$percent"
   sleep 5
 done
 
