@@ -60,5 +60,6 @@ fi
 
 printf '%s\0' "${images[@]}" | xargs -0 -n 1 -P "$concurrency" sh -c '
   image="$1"
-  PROGRESS_MODE=batch make --no-print-directory remove-one IMAGE="$image"
+  env -u OUTPUT -u MASK -u CODEX_LOG -u IMAGE_STEM -u IMAGE_DIR -u SAFE_IMAGE \
+    PROGRESS_MODE=batch make --no-print-directory remove-one IMAGE="$image"
 ' _

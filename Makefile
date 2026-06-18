@@ -4,7 +4,7 @@ CLEAN_DIR := clean-images
 LOG_DIR := logs
 
 -include .env
-export
+export OPENAI_API_KEY OPENAI_BASE_URL OPENAI_ORG_ID
 
 IMAGE ?= $(notdir $(firstword $(wildcard $(RAW_DIR)/*)))
 IMAGE_STEM := $(basename $(notdir $(IMAGE)))
