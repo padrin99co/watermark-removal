@@ -35,6 +35,23 @@ percents=(10 25 45 65 80 95)
 log_file="$(mktemp)"
 trap 'rm -f "$log_file"' EXIT
 
+green=""
+yellow=""
+red=""
+green_bar=""
+yellow_bar=""
+red_bar=""
+reset=""
+if [ -t 1 ]; then
+  green="$(printf '\033[32m')"
+  yellow="$(printf '\033[33m')"
+  red="$(printf '\033[31m')"
+  green_bar="$(printf '\033[42m')"
+  yellow_bar="$(printf '\033[43m')"
+  red_bar="$(printf '\033[41m')"
+  reset="$(printf '\033[0m')"
+fi
+
 update_status "In Progress" "Codex removal started"
 
 if [ "${PROGRESS_MODE:-}" = "batch" ]; then
@@ -61,23 +78,6 @@ pid=$!
 step_index=0
 bar_width=24
 last_log_line=""
-
-green=""
-yellow=""
-red=""
-green_bar=""
-yellow_bar=""
-red_bar=""
-reset=""
-if [ -t 1 ]; then
-  green="$(printf '\033[32m')"
-  yellow="$(printf '\033[33m')"
-  red="$(printf '\033[31m')"
-  green_bar="$(printf '\033[42m')"
-  yellow_bar="$(printf '\033[43m')"
-  red_bar="$(printf '\033[41m')"
-  reset="$(printf '\033[0m')"
-fi
 
 terminal_width="$(tput cols 2>/dev/null || echo 100)"
 
