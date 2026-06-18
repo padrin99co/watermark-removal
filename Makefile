@@ -53,6 +53,7 @@ remove: check-image mask
 			../$(RAW_DIR)/$(IMAGE) \
 			../$(MASK) \
 			../$(OUTPUT); \
+		test -f "$(OUTPUT)" || (echo "error: OpenCV removal did not create $(OUTPUT)" && exit 2); \
 		$(PYTHON) -c "from PIL import Image; Image.open('$(OUTPUT)').convert('RGB').save('$(AI_OUTPUT)')"; \
 	fi
 	@test -f "$(OUTPUT)" || (echo "error: missing output: $(OUTPUT)" && exit 2)
@@ -71,3 +72,4 @@ test:
 
 clean:
 	rm -f $(CLEAN_DIR)/*-mask.png $(CLEAN_DIR)/*-clean.jpg
+	@echo "Preserved AI-cleaned sources: $(CLEAN_DIR)/*-clean-ai.png"
