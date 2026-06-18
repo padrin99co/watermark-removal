@@ -27,6 +27,7 @@ pid=$!
 
 step_index=0
 bar_width=24
+last_log_line=""
 
 printf '%s\n' "$label"
 
@@ -45,6 +46,11 @@ while kill -0 "$pid" 2>/dev/null; do
   filled=$(( percent * bar_width / 100 ))
   empty=$(( bar_width - filled ))
   bar="$(printf '%*s' "$filled" '' | tr ' ' '#')$(printf '%*s' "$empty" '' | tr ' ' '-')"
+  current_log_line="$(grep -E '^(codex|exec|imagegen|Done\\.|Saved|Wrote|Verified|The |I |Using |Generated)' "$log_file" | tail -n 1 || true)"
+  if [ -n "$current_log_line" ] && [ "$current_log_line" != "$last_log_line" ]; then
+    printf '\n%s\n' "$current_log_line"
+    last_log_line="$current_log_line"
+  fi
   printf '\r[%s] %3d%% waiting for Codex result' "$bar" "$percent"
   sleep 5
 done
