@@ -15,9 +15,11 @@ PYTHON ?= python3
 CODEX ?= codex
 CODEX_MODEL ?= gpt-5.4-mini
 CODEX_LOG ?= $(LOG_DIR)/$(BASENAME)-codex-run.txt
+STATUS_LOG ?= $(LOG_DIR)/status.tsv
 PROGRESS_RUN ?= scripts/progress-run.sh
+STATUS_WRITER ?= scripts/status-log.py
 
-.PHONY: help install mask remove codex-request process test clean open
+.PHONY: help install mask remove remove-api process status test clean open
 
 help:
 	@echo "Targets:"
@@ -27,6 +29,7 @@ help:
 	@echo "  make remove-api           Remove watermark with OpenAI API key"
 	@echo "  make process RECT=x,y,w,h Create mask, remove watermark, and open result"
 	@echo "  make open                 Open cleaned output"
+	@echo "  make status               Show image processing status summary"
 	@echo "  make test                 Run tests"
 	@echo "  make clean                Remove generated masks/outputs"
 	@echo ""
@@ -37,6 +40,7 @@ help:
 	@echo "  OUTPUT=$(OUTPUT)"
 	@echo "  CODEX_MODEL=$(CODEX_MODEL)"
 	@echo "  CODEX_LOG=$(CODEX_LOG)"
+	@echo "  STATUS_LOG=$(STATUS_LOG)"
 
 install:
 	cd $(APP_DIR) && $(PYTHON) -m pip install --user -e .
@@ -55,13 +59,20 @@ mask: check-image
 remove: check-image
 	@mkdir -p $(CLEAN_DIR)
 	@mkdir -p $(LOG_DIR)
-	@$(PROGRESS_RUN) "$(IMAGE)" $(CODEX) exec -C . --sandbox workspace-write -m $(CODEX_MODEL) \
+	@set -e; \
+	if [ -f "$(OUTPUT)" ] && $(PYTHON) -c "from PIL import Image; raw=Image.open('$(RAW_DIR)/$(IMAGE)'); out=Image.open('$(OUTPUT)'); assert out.size == raw.size" >/dev/null 2>&1; then \
+		$(PYTHON) $(STATUS_WRITER) "$(STATUS_LOG)" "Done" "$(IMAGE)" "$(OUTPUT)" "Already cleaned; skipped retry"; \
+		printf "[Done] %s (already cleaned)\\n" "$(IMAGE)"; \
+		exit 0; \
+	fi; \
+	STATUS_FILE="$(STATUS_LOG)" STATUS_OUTPUT="$(OUTPUT)" $(PROGRESS_RUN) "$(IMAGE)" $(CODEX) exec -C . --sandbox workspace-write -m $(CODEX_MODEL) \
 		--image $(RAW_DIR)/$(IMAGE) \
 		--output-last-message $(CODEX_LOG) \
-		"Use the imagegen skill and Codex image editing to remove only the visible semi-transparent watermark/logo from $(RAW_DIR)/$(IMAGE). Save exactly one cleaned output to $(OUTPUT), keeping the same filename and extension as the source image. Preserve the same source image dimensions, building, streetlight, sky, colors, perspective, and composition. Do not use OpenCV inpainting for the final output. Do not modify source code or Git. Finish only after $(OUTPUT) exists and verify its dimensions match the source."
-	@test -f "$(OUTPUT)" || (echo "error: missing output: $(OUTPUT)" && exit 2)
-	@$(PYTHON) -c "from PIL import Image; raw=Image.open('$(RAW_DIR)/$(IMAGE)'); out=Image.open('$(OUTPUT)'); assert out.size == raw.size, f'output size {out.size} != raw size {raw.size}'; print('Verified dimensions:', out.size)"
-	@echo "Wrote: $(OUTPUT)"
+		"Use the imagegen skill and Codex image editing to remove only the visible semi-transparent watermark/logo from $(RAW_DIR)/$(IMAGE). Save exactly one cleaned output to $(OUTPUT), keeping the same filename and extension as the source image. Preserve the same source image dimensions, building, streetlight, sky, colors, perspective, and composition. Do not use OpenCV inpainting for the final output. Do not modify source code or Git. Finish only after $(OUTPUT) exists and verify its dimensions match the source."; \
+	test -f "$(OUTPUT)" || (echo "error: missing output: $(OUTPUT)" && $(PYTHON) $(STATUS_WRITER) "$(STATUS_LOG)" "Failed" "$(IMAGE)" "$(OUTPUT)" "Missing output file" && exit 2); \
+	$(PYTHON) -c "from PIL import Image; raw=Image.open('$(RAW_DIR)/$(IMAGE)'); out=Image.open('$(OUTPUT)'); assert out.size == raw.size, f'output size {out.size} != raw size {raw.size}'; print('Verified dimensions:', out.size)" || ($(PYTHON) $(STATUS_WRITER) "$(STATUS_LOG)" "Failed" "$(IMAGE)" "$(OUTPUT)" "Dimension verification failed" && exit 2); \
+	$(PYTHON) $(STATUS_WRITER) "$(STATUS_LOG)" "Done" "$(IMAGE)" "$(OUTPUT)" "Watermark removed"; \
+	echo "Wrote: $(OUTPUT)"
 
 remove-api: check-image mask
 	@mkdir -p $(CLEAN_DIR)
@@ -77,6 +88,13 @@ process: mask remove open
 
 open:
 	xdg-open $(OUTPUT)
+
+status:
+	@if [ -f "$(STATUS_LOG)" ]; then \
+		column -t -s "$$(printf '\t')" "$(STATUS_LOG)" 2>/dev/null || cat "$(STATUS_LOG)"; \
+	else \
+		echo "No status log yet: $(STATUS_LOG)"; \
+	fi
 
 test:
 	cd $(APP_DIR) && $(PYTHON) -m compileall -q watermark_remover tests

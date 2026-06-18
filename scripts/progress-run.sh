@@ -9,6 +9,19 @@ fi
 label="$1"
 shift
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+status_file="${STATUS_FILE:-}"
+status_output="${STATUS_OUTPUT:-}"
+
+update_status() {
+  local status="$1"
+  local message="$2"
+
+  if [ -n "$status_file" ]; then
+    python3 "$script_dir/status-log.py" "$status_file" "$status" "$label" "$status_output" "$message" || true
+  fi
+}
+
 steps=(
   "preparing image"
   "sending to Codex"
@@ -21,6 +34,8 @@ percents=(10 25 45 65 80 95)
 
 log_file="$(mktemp)"
 trap 'rm -f "$log_file"' EXIT
+
+update_status "In Progress" "Codex removal started"
 
 "$@" >"$log_file" 2>&1 &
 pid=$!
@@ -102,6 +117,7 @@ if [ "$status" -eq 0 ]; then
   printf '\r\033[K%s[Done]%s %s\n' "$green" "$reset" "$label"
 else
   printf '\r\033[K%s[Failed]%s %s\n' "$red" "$reset" "$label"
+  update_status "Failed" "Codex removal failed"
   cat "$log_file"
 fi
 

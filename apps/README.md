@@ -31,11 +31,25 @@ make remove
 make open
 ```
 
-`make remove` uses the local Codex CLI with `gpt-5.5` and Codex image editing. It writes the cleaned image with the same filename and extension as the raw image:
+`make remove` uses the local Codex CLI with `CODEX_MODEL` and Codex image editing. It writes the cleaned image with the same filename and extension as the raw image:
 
 ```text
 raw-images/example.jpeg
 clean-images/example.jpeg
+```
+
+If the cleaned output already exists and matches the source dimensions, `make remove` skips the image instead of retrying.
+
+Processing status is written to:
+
+```text
+logs/status.tsv
+```
+
+View the summary with:
+
+```bash
+make status
 ```
 
 During removal, the terminal shows progress like:
