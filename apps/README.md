@@ -38,6 +38,12 @@ raw-images/example.jpeg
 clean-images/example.jpeg
 ```
 
+During removal, the terminal shows progress like:
+
+```text
+example.jpeg -> [########------------]  50% (editing watermark)
+```
+
 If you prefer direct OpenAI API usage instead of Codex CLI, configure `.env`:
 
 ```bash

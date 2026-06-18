@@ -14,6 +14,7 @@ PYTHON ?= python3
 CODEX ?= codex
 CODEX_MODEL ?= gpt-5.5
 CODEX_LOG ?= $(CLEAN_DIR)/$(BASENAME)-codex-run.txt
+PROGRESS_RUN ?= scripts/progress-run.sh
 
 .PHONY: help install mask remove codex-request process test clean open
 
@@ -51,7 +52,7 @@ mask: check-image
 
 remove: check-image
 	mkdir -p $(CLEAN_DIR)
-	$(CODEX) exec -C . --sandbox workspace-write -m $(CODEX_MODEL) \
+	@$(PROGRESS_RUN) "$(IMAGE)" $(CODEX) exec -C . --sandbox workspace-write -m $(CODEX_MODEL) \
 		--image $(RAW_DIR)/$(IMAGE) \
 		--output-last-message $(CODEX_LOG) \
 		"Use the imagegen skill and Codex image editing to remove only the visible semi-transparent watermark/logo from $(RAW_DIR)/$(IMAGE). Save exactly one cleaned output to $(OUTPUT), keeping the same filename and extension as the source image. Preserve the same source image dimensions, building, streetlight, sky, colors, perspective, and composition. Do not use OpenCV inpainting for the final output. Do not modify source code or Git. Finish only after $(OUTPUT) exists and verify its dimensions match the source."
