@@ -2,6 +2,7 @@
 set -euo pipefail
 
 raw_dir="${RAW_DIR:-raw-images}"
+image_scope="${IMAGE_SCOPE:-}"
 concurrency="${CONCURRENCY:-2}"
 dry_run="${DRY_RUN:-0}"
 
@@ -15,19 +16,40 @@ if [ ! -d "$raw_dir" ]; then
   exit 2
 fi
 
-mapfile -d '' images < <(
-  find "$raw_dir" -maxdepth 1 -type f \
-    \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) \
-    -printf '%f\0' | sort -z
-)
+search_path="$raw_dir"
+if [ -n "$image_scope" ]; then
+  search_path="$raw_dir/$image_scope"
+fi
+
+if [ ! -e "$search_path" ]; then
+  echo "error: image or folder not found: $search_path" >&2
+  exit 2
+fi
+
+if [ -f "$search_path" ]; then
+  images=("${search_path#"$raw_dir"/}")
+else
+  mapfile -d '' images < <(
+    find "$search_path" -type f \
+      \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) \
+      -print0 |
+      sort -z |
+      while IFS= read -r -d '' image_path; do
+        printf '%s\0' "${image_path#"$raw_dir"/}"
+      done
+  )
+fi
 
 total="${#images[@]}"
 if [ "$total" -eq 0 ]; then
-  echo "No images found in $raw_dir"
+  echo "No images found in $search_path"
   exit 0
 fi
 
 echo "Batch watermark removal"
+if [ -n "$image_scope" ]; then
+  echo "Scope: $image_scope"
+fi
 echo "Images: $total"
 echo "Concurrency: $concurrency"
 
@@ -38,5 +60,5 @@ fi
 
 printf '%s\0' "${images[@]}" | xargs -0 -n 1 -P "$concurrency" sh -c '
   image="$1"
-  PROGRESS_MODE=batch make --no-print-directory remove IMAGE="$image"
+  PROGRESS_MODE=batch make --no-print-directory remove-one IMAGE="$image"
 ' _

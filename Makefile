@@ -7,14 +7,16 @@ LOG_DIR := logs
 export
 
 IMAGE ?= $(notdir $(firstword $(wildcard $(RAW_DIR)/*)))
-BASENAME := $(basename $(notdir $(IMAGE)))
+IMAGE_STEM := $(basename $(notdir $(IMAGE)))
+IMAGE_DIR := $(dir $(IMAGE))
+SAFE_IMAGE := $(subst /,__,$(basename $(IMAGE)))
 RECT ?= 20,30,180,60
-MASK ?= $(CLEAN_DIR)/$(BASENAME)-mask.png
+MASK ?= $(CLEAN_DIR)/$(IMAGE_DIR)$(IMAGE_STEM)-mask.png
 OUTPUT ?= $(CLEAN_DIR)/$(IMAGE)
 PYTHON ?= python3
 CODEX ?= codex
 CODEX_MODEL ?= gpt-5.4-mini
-CODEX_LOG ?= $(LOG_DIR)/$(BASENAME)-codex-run.txt
+CODEX_LOG ?= $(LOG_DIR)/$(SAFE_IMAGE)-codex-run.txt
 STATUS_LOG ?= $(LOG_DIR)/status.tsv
 PROGRESS_RUN ?= scripts/progress-run.sh
 STATUS_WRITER ?= scripts/status-log.py
@@ -22,7 +24,7 @@ BATCH_RUN ?= scripts/batch-remove.sh
 CONCURRENCY ?= 2
 DRY_RUN ?= 0
 
-.PHONY: help install mask remove remove-api batch process status test clean open
+.PHONY: help install mask remove remove-one remove-api batch process status test clean open
 
 help:
 	@echo "Targets:"
@@ -53,17 +55,26 @@ install:
 
 check-image:
 	@test -n "$(IMAGE)" || (echo "error: no image found in $(RAW_DIR)/" && exit 2)
-	@test -f "$(RAW_DIR)/$(IMAGE)" || (echo "error: image not found: $(RAW_DIR)/$(IMAGE)" && exit 2)
+	@test -f "$(RAW_DIR)/$(IMAGE)" -o -d "$(RAW_DIR)/$(IMAGE)" || (echo "error: image or folder not found: $(RAW_DIR)/$(IMAGE)" && exit 2)
 
 mask: check-image
-	@mkdir -p $(CLEAN_DIR)
+	@test -f "$(RAW_DIR)/$(IMAGE)" || (echo "error: mask target must be a file, got folder: $(RAW_DIR)/$(IMAGE)" && exit 2)
+	@mkdir -p "$(dir $(MASK))"
 	cd $(APP_DIR) && watermark-remover --i-understand mask-rect \
 		../$(RAW_DIR)/$(IMAGE) \
 		../$(MASK) \
 		--rect $(RECT)
 
 remove: check-image
-	@mkdir -p $(CLEAN_DIR)
+	@if [ -d "$(RAW_DIR)/$(IMAGE)" ]; then \
+		$(MAKE) --no-print-directory batch IMAGE_SCOPE="$(IMAGE)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)"; \
+	else \
+		$(MAKE) --no-print-directory remove-one IMAGE="$(IMAGE)"; \
+	fi
+
+remove-one: check-image
+	@test -f "$(RAW_DIR)/$(IMAGE)" || (echo "error: remove-one target must be a file, got folder: $(RAW_DIR)/$(IMAGE)" && exit 2)
+	@mkdir -p "$(dir $(OUTPUT))"
 	@mkdir -p $(LOG_DIR)
 	@set -e; \
 	if [ -f "$(OUTPUT)" ] && $(PYTHON) -c "from PIL import Image; raw=Image.open('$(RAW_DIR)/$(IMAGE)'); out=Image.open('$(OUTPUT)'); assert out.size == raw.size" >/dev/null 2>&1; then \
@@ -81,7 +92,7 @@ remove: check-image
 	echo "Wrote: $(OUTPUT)"
 
 remove-api: check-image mask
-	@mkdir -p $(CLEAN_DIR)
+	@mkdir -p "$(dir $(OUTPUT))"
 	@test -n "$$OPENAI_API_KEY" || (echo "error: OPENAI_API_KEY is required for make remove-api" && exit 2)
 	cd $(APP_DIR) && watermark-remover --i-understand remove-ai \
 		../$(RAW_DIR)/$(IMAGE) \
@@ -93,7 +104,7 @@ remove-api: check-image mask
 batch:
 	@mkdir -p $(CLEAN_DIR)
 	@mkdir -p $(LOG_DIR)
-	@RAW_DIR="$(RAW_DIR)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" $(BATCH_RUN)
+	@RAW_DIR="$(RAW_DIR)" IMAGE_SCOPE="$(IMAGE_SCOPE)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" $(BATCH_RUN)
 	@if [ "$(DRY_RUN)" != "1" ]; then $(MAKE) --no-print-directory status; fi
 
 process: mask remove open
@@ -113,6 +124,5 @@ test:
 	cd $(APP_DIR) && $(PYTHON) -m pytest -q
 
 clean:
-	rm -f $(CLEAN_DIR)/*-mask.png
-	find $(CLEAN_DIR) -maxdepth 1 -type f ! -name '.gitkeep' -delete
+	find $(CLEAN_DIR) -mindepth 1 ! -name '.gitkeep' -exec rm -rf {} +
 	rm -f $(LOG_DIR)/*-codex-run.txt

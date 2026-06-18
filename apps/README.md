@@ -38,6 +38,19 @@ raw-images/example.jpeg
 clean-images/example.jpeg
 ```
 
+Folder structure is preserved:
+
+```text
+raw-images/exterior/example.jpeg
+clean-images/exterior/example.jpeg
+```
+
+Process one folder:
+
+```bash
+make remove IMAGE=exterior
+```
+
 If the cleaned output already exists and matches the source dimensions, `make remove` skips the image instead of retrying.
 
 Processing status is written to:
@@ -64,6 +77,12 @@ Process every image in `raw-images/`:
 
 ```bash
 make batch
+```
+
+Process one subfolder:
+
+```bash
+make batch IMAGE_SCOPE=exterior
 ```
 
 Run in parallel:
