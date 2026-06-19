@@ -35,6 +35,13 @@ percents=(10 25 45 65 80 95)
 log_file="$(mktemp)"
 trap 'rm -f "$log_file"' EXIT
 
+validate_output() {
+  if [ -n "$status_output" ] && [ ! -f "$status_output" ]; then
+    printf 'error: missing output: %s\n' "$status_output" >>"$log_file"
+    return 1
+  fi
+}
+
 green=""
 yellow=""
 red=""
@@ -60,12 +67,18 @@ if [ "${PROGRESS_MODE:-}" = "batch" ]; then
   "$@" >"$log_file" 2>&1
   status=$?
   set -e
+  failure_message="Codex removal failed"
+
+  if [ "$status" -eq 0 ] && ! validate_output; then
+    status=2
+    failure_message="Missing output file"
+  fi
 
   if [ "$status" -eq 0 ]; then
     printf "%s[Done]%s %s\n" "$green" "$reset" "$label"
   else
     printf "%s[Failed]%s %s\n" "$red" "$reset" "$label"
-    update_status "Failed" "Codex removal failed"
+    update_status "Failed" "$failure_message"
     cat "$log_file"
   fi
 
@@ -130,12 +143,18 @@ set +e
 wait "$pid"
 status=$?
 set -e
+failure_message="Codex removal failed"
+
+if [ "$status" -eq 0 ] && ! validate_output; then
+  status=2
+  failure_message="Missing output file"
+fi
 
 if [ "$status" -eq 0 ]; then
   printf '\r\033[K%s[Done]%s %s\n' "$green" "$reset" "$label"
 else
   printf '\r\033[K%s[Failed]%s %s\n' "$red" "$reset" "$label"
-  update_status "Failed" "Codex removal failed"
+  update_status "Failed" "$failure_message"
   cat "$log_file"
 fi
 

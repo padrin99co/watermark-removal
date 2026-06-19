@@ -21,10 +21,14 @@ STATUS_LOG ?= $(LOG_DIR)/status.tsv
 PROGRESS_RUN ?= scripts/progress-run.sh
 STATUS_WRITER ?= scripts/status-log.py
 BATCH_RUN ?= scripts/batch-remove.sh
+RETRY_FAILED_RUN ?= scripts/retry-failed.sh
+CONTINUE_PROGRESS_RUN ?= scripts/continue-progress.sh
 CONCURRENCY ?= 2
 DRY_RUN ?= 0
+FORCE ?= 0
+REASON ?= Needs retry
 
-.PHONY: help install mask remove remove-one remove-api batch process status test clean open
+.PHONY: help install mask remove remove-one remove-api batch retry-failed continue-progress mark-failed process status test clean open
 
 help:
 	@echo "Targets:"
@@ -33,6 +37,9 @@ help:
 	@echo "  make remove               Remove watermark with local Codex CLI"
 	@echo "  make remove-api           Remove watermark with OpenAI API key"
 	@echo "  make batch                Remove watermarks for all raw images"
+	@echo "  make retry-failed         Retry only Failed images from logs/status.tsv"
+	@echo "  make continue-progress    Continue In Progress images from logs/status.tsv"
+	@echo "  make mark-failed          Mark IMAGE as Failed for retry"
 	@echo "  make process RECT=x,y,w,h Create mask, remove watermark, and open result"
 	@echo "  make open                 Open cleaned output"
 	@echo "  make status               Show image processing status summary"
@@ -49,6 +56,8 @@ help:
 	@echo "  STATUS_LOG=$(STATUS_LOG)"
 	@echo "  CONCURRENCY=$(CONCURRENCY)"
 	@echo "  DRY_RUN=$(DRY_RUN)"
+	@echo "  FORCE=$(FORCE)"
+	@echo "  REASON=$(REASON)"
 
 install:
 	cd $(APP_DIR) && $(PYTHON) -m pip install --user -e .
@@ -77,7 +86,7 @@ remove-one: check-image
 	@mkdir -p "$(dir $(OUTPUT))"
 	@mkdir -p $(LOG_DIR)
 	@set -e; \
-	if [ -f "$(OUTPUT)" ] && $(PYTHON) -c "from PIL import Image; raw=Image.open('$(RAW_DIR)/$(IMAGE)'); out=Image.open('$(OUTPUT)'); assert out.size == raw.size" >/dev/null 2>&1; then \
+	if [ "$(FORCE)" != "1" ] && [ -f "$(OUTPUT)" ] && $(PYTHON) -c "from PIL import Image; raw=Image.open('$(RAW_DIR)/$(IMAGE)'); out=Image.open('$(OUTPUT)'); assert out.size == raw.size" >/dev/null 2>&1; then \
 		$(PYTHON) $(STATUS_WRITER) "$(STATUS_LOG)" "Done" "$(IMAGE)" "$(OUTPUT)" "Already cleaned; skipped retry"; \
 		printf "[Done] %s (already cleaned)\\n" "$(IMAGE)"; \
 		exit 0; \
@@ -106,6 +115,23 @@ batch:
 	@mkdir -p $(LOG_DIR)
 	@RAW_DIR="$(RAW_DIR)" IMAGE_SCOPE="$(IMAGE_SCOPE)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" $(BATCH_RUN)
 	@if [ "$(DRY_RUN)" != "1" ]; then $(MAKE) --no-print-directory status; fi
+
+retry-failed:
+	@mkdir -p $(CLEAN_DIR)
+	@mkdir -p $(LOG_DIR)
+	@RAW_DIR="$(RAW_DIR)" STATUS_LOG="$(STATUS_LOG)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" $(RETRY_FAILED_RUN)
+	@if [ "$(DRY_RUN)" != "1" ]; then $(MAKE) --no-print-directory status; fi
+
+continue-progress:
+	@mkdir -p $(CLEAN_DIR)
+	@mkdir -p $(LOG_DIR)
+	@RAW_DIR="$(RAW_DIR)" STATUS_LOG="$(STATUS_LOG)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" $(CONTINUE_PROGRESS_RUN)
+	@if [ "$(DRY_RUN)" != "1" ]; then $(MAKE) --no-print-directory status; fi
+
+mark-failed: check-image
+	@mkdir -p $(LOG_DIR)
+	@$(PYTHON) $(STATUS_WRITER) "$(STATUS_LOG)" "Failed" "$(IMAGE)" "$(OUTPUT)" "$(REASON)"
+	@printf "[Failed] %s (%s)\\n" "$(IMAGE)" "$(REASON)"
 
 process: mask remove open
 
