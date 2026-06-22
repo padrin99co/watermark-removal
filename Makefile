@@ -2,6 +2,7 @@ APP_DIR := apps
 RAW_DIR := raw-images
 CLEAN_DIR := clean-images
 LOG_DIR := logs
+MASK_DIR := $(LOG_DIR)/masks
 
 -include .env
 export OPENAI_API_KEY OPENAI_BASE_URL OPENAI_ORG_ID
@@ -11,7 +12,7 @@ IMAGE_STEM := $(basename $(notdir $(IMAGE)))
 IMAGE_DIR := $(dir $(IMAGE))
 SAFE_IMAGE := $(subst /,__,$(basename $(IMAGE)))
 RECT ?= 20,30,180,60
-MASK ?= $(CLEAN_DIR)/$(IMAGE_DIR)$(IMAGE_STEM)-mask.png
+MASK ?= $(MASK_DIR)/$(IMAGE_DIR)$(IMAGE_STEM).png
 OUTPUT ?= $(CLEAN_DIR)/$(IMAGE)
 PYTHON ?= python3
 CODEX ?= codex
@@ -23,17 +24,18 @@ STATUS_WRITER ?= scripts/status-log.py
 BATCH_RUN ?= scripts/batch-remove.sh
 RETRY_FAILED_RUN ?= scripts/retry-failed.sh
 CONTINUE_PROGRESS_RUN ?= scripts/continue-progress.sh
-CONCURRENCY ?= 2
+CONCURRENCY ?= 1
 DRY_RUN ?= 0
 FORCE ?= 0
 REASON ?= Needs retry
+EXCLUDE_FILENAMES ?= rules/strapi-office-venue-existing-filenames.txt
 
 .PHONY: help install mask remove remove-one remove-api batch retry-failed continue-progress mark-failed process status test clean open
 
 help:
 	@echo "Targets:"
 	@echo "  make install              Install CLI from apps/"
-	@echo "  make mask RECT=x,y,w,h    Create mask in clean-images/"
+	@echo "  make mask RECT=x,y,w,h    Create mask in logs/masks/"
 	@echo "  make remove               Remove watermark with local Codex CLI"
 	@echo "  make remove-api           Remove watermark with OpenAI API key"
 	@echo "  make batch                Remove watermarks for all raw images"
@@ -58,6 +60,7 @@ help:
 	@echo "  DRY_RUN=$(DRY_RUN)"
 	@echo "  FORCE=$(FORCE)"
 	@echo "  REASON=$(REASON)"
+	@echo "  EXCLUDE_FILENAMES=$(EXCLUDE_FILENAMES)"
 
 install:
 	cd $(APP_DIR) && $(PYTHON) -m pip install --user -e .
@@ -91,10 +94,17 @@ remove-one: check-image
 		printf "[Done] %s (already cleaned)\\n" "$(IMAGE)"; \
 		exit 0; \
 	fi; \
+	if [ "$(FORCE)" = "1" ]; then \
+		rm -f "$(OUTPUT)"; \
+	fi; \
+	set +e; \
 	STATUS_FILE="$(STATUS_LOG)" STATUS_OUTPUT="$(OUTPUT)" $(PROGRESS_RUN) "$(IMAGE)" $(CODEX) exec -C . --sandbox workspace-write -m $(CODEX_MODEL) \
 		--image $(RAW_DIR)/$(IMAGE) \
 		--output-last-message $(CODEX_LOG) \
-		"Use the imagegen skill and Codex image editing to remove only the visible semi-transparent watermark/logo from $(RAW_DIR)/$(IMAGE). Save exactly one cleaned output to $(OUTPUT), keeping the same filename and extension as the source image. Preserve the same source image dimensions, building, streetlight, sky, colors, perspective, and composition. Do not use OpenCV inpainting for the final output. Do not modify source code or Git. Finish only after $(OUTPUT) exists and verify its dimensions match the source."; \
+		"Use the imagegen skill and Codex image editing to remove only the visible semi-transparent watermark/logo from $(RAW_DIR)/$(IMAGE). Save exactly one cleaned output to $(OUTPUT), keeping the same filename and extension as the source image. Preserve the same source image dimensions, building, streetlight, sky, colors, perspective, facade texture, window grid, edges, and composition. The cleaned area must look natural and consistent with surrounding pixels. Do not leave visible watermark text, logo fragments, ghost text, blurry smears, smooth patches, translucent rectangles, flat fills, or patch-like artifacts. Reconstruct plausible building/sky detail instead of covering the mark. Before finishing, visually inspect the saved output. If any watermark text/logo/remnant is still visible or the edit looks unnatural, delete $(OUTPUT), report the issue, and do not claim success. Do not use OpenCV inpainting for the final output. Do not modify source code or Git. Finish only after $(OUTPUT) exists, its dimensions match the source, and no visible watermark/remnant remains."; \
+	progress_status=$$?; \
+	set -e; \
+	if [ "$$progress_status" -ne 0 ]; then exit "$$progress_status"; fi; \
 	test -f "$(OUTPUT)" || (echo "error: missing output: $(OUTPUT)" && $(PYTHON) $(STATUS_WRITER) "$(STATUS_LOG)" "Failed" "$(IMAGE)" "$(OUTPUT)" "Missing output file" && exit 2); \
 	$(PYTHON) -c "from PIL import Image; raw=Image.open('$(RAW_DIR)/$(IMAGE)'); out=Image.open('$(OUTPUT)'); assert out.size == raw.size, f'output size {out.size} != raw size {raw.size}'; print('Verified dimensions:', out.size)" || ($(PYTHON) $(STATUS_WRITER) "$(STATUS_LOG)" "Failed" "$(IMAGE)" "$(OUTPUT)" "Dimension verification failed" && exit 2); \
 	$(PYTHON) $(STATUS_WRITER) "$(STATUS_LOG)" "Done" "$(IMAGE)" "$(OUTPUT)" "Watermark removed"; \
@@ -113,19 +123,19 @@ remove-api: check-image mask
 batch:
 	@mkdir -p $(CLEAN_DIR)
 	@mkdir -p $(LOG_DIR)
-	@RAW_DIR="$(RAW_DIR)" IMAGE_SCOPE="$(IMAGE_SCOPE)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" $(BATCH_RUN)
+	@RAW_DIR="$(RAW_DIR)" IMAGE_SCOPE="$(IMAGE_SCOPE)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" EXCLUDE_FILENAMES="$(EXCLUDE_FILENAMES)" $(BATCH_RUN)
 	@if [ "$(DRY_RUN)" != "1" ]; then $(MAKE) --no-print-directory status; fi
 
 retry-failed:
 	@mkdir -p $(CLEAN_DIR)
 	@mkdir -p $(LOG_DIR)
-	@RAW_DIR="$(RAW_DIR)" STATUS_LOG="$(STATUS_LOG)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" $(RETRY_FAILED_RUN)
+	@RAW_DIR="$(RAW_DIR)" STATUS_LOG="$(STATUS_LOG)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" EXCLUDE_FILENAMES="$(EXCLUDE_FILENAMES)" $(RETRY_FAILED_RUN)
 	@if [ "$(DRY_RUN)" != "1" ]; then $(MAKE) --no-print-directory status; fi
 
 continue-progress:
 	@mkdir -p $(CLEAN_DIR)
 	@mkdir -p $(LOG_DIR)
-	@RAW_DIR="$(RAW_DIR)" STATUS_LOG="$(STATUS_LOG)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" $(CONTINUE_PROGRESS_RUN)
+	@RAW_DIR="$(RAW_DIR)" STATUS_LOG="$(STATUS_LOG)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" EXCLUDE_FILENAMES="$(EXCLUDE_FILENAMES)" $(CONTINUE_PROGRESS_RUN)
 	@if [ "$(DRY_RUN)" != "1" ]; then $(MAKE) --no-print-directory status; fi
 
 mark-failed: check-image
@@ -152,3 +162,4 @@ test:
 clean:
 	find $(CLEAN_DIR) -mindepth 1 ! -name '.gitkeep' -exec rm -rf {} +
 	rm -f $(LOG_DIR)/*-codex-run.txt
+	rm -rf $(MASK_DIR)
