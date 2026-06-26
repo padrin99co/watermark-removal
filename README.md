@@ -2,108 +2,52 @@
 
 Workflow for cleaning Office Venue images, uploading the cleaned files to Strapi Media Library, and linking those media files to Office Venue content.
 
-## Main Flow
+## Overview and Flow
 
-1. Remove watermarks from raw images:
+1. Remove watermarks from raw images.
 
    ```bash
    make remove CONCURRENCY=4
    ```
 
-2. Upload cleaned images to Strapi:
+   Source images are read from `raw-images/`, and cleaned images are written to `clean-images/`.
+
+2. Upload cleaned images to Strapi.
 
    ```bash
    export STRAPI_ADMIN_JWT='<admin-jwt>'
    make upload-strapi-images
    ```
 
-3. Link uploaded images to Strapi Office Venue content:
+   A successful upload also updates:
+
+   ```text
+   rules/strapi-office-venue-existing-filenames.txt
+   ```
+
+   That rules file is used by the watermark-removal batch flow, so images already uploaded or already found in Strapi are ignored by later `make remove`, `make retry-failed`, and `make continue-progress` runs.
+
+3. Link uploaded images to Strapi Office Venue content.
 
    This runs automatically after `make upload-strapi-images`.
 
-   You can also run it manually for images that are already uploaded:
+   You can also run it manually for images that were already uploaded:
 
    ```bash
    make link-strapi-office-venue-images
    ```
 
-## Directories
+The link step reads the latest upload report, groups rows by `office_name`, matches each group to Office Venue content by `slug`, and links the media assets into the Office Venue `image` component field.
 
-| Path | Purpose |
-| --- | --- |
-| `raw-images/` | Source images before watermark removal. |
-| `clean-images/` | Cleaned images produced by `make remove`. |
-| `logs/strapi-upload-reports/` | Upload and content-link reports. |
-| `rules/strapi-office-venue-existing-filenames.txt` | Filenames already uploaded or found in Strapi, skipped by later watermark-removal runs. |
-
-## Strapi Upload
-
-Default target:
-
-```text
-STRAPI_BASE_URL=https://cms.rumah123.com
-STRAPI_ROOT_FOLDER_PATH=Media Library/Office Venue
-STRAPI_IMAGE_DIR=clean-images
-```
-
-Production Strapi requires confirmation. In an interactive shell, the script asks you to type `production`. For non-interactive runs:
-
-```bash
-make upload-strapi-images STRAPI_EXTRA_ARGS=--confirm-production
-```
-
-Upload behavior:
-
-- Uploads cleaned files from `clean-images/`.
-- Creates missing Media Library office folders.
-- Skips files already present in the target Strapi folder.
-- Writes Markdown and CSV reports to `logs/strapi-upload-reports/`.
-- Adds `uploaded` and `skipped_existing` filenames to `rules/strapi-office-venue-existing-filenames.txt`.
-- Automatically runs `make link-strapi-office-venue-images` after upload succeeds.
-
-## Content Linking
-
-The link step reads the latest CSV report from:
-
-```text
-logs/strapi-upload-reports/
-```
-
-It groups report rows by `office_name`, matches each group to Office Venue content by:
-
-```text
-Office Venue slug = report office_name
-```
-
-Then it links each Strapi media asset to the Office Venue `image` component field.
-
-The script checks existing links by media ID using:
+Existing links are checked by media ID:
 
 ```text
 image[] -> imageUrl[] -> id
 ```
 
-If the media ID is already present, it does not update the content entry.
+If a media ID is already present, the content entry is not updated.
 
-## Link One Venue
-
-To link only one slug from the latest report:
-
-```bash
-make link-strapi-office-venue-images STRAPI_OFFICE=graha-cimb-niaga
-```
-
-For production non-interactive runs:
-
-```bash
-make link-strapi-office-venue-images \
-  STRAPI_OFFICE=graha-cimb-niaga \
-  STRAPI_EXTRA_ARGS=--confirm-production
-```
-
-## Image subType Mapping
-
-New Office Venue image components use `subType` based on the image source category:
+Image `subType` is based on source category:
 
 | Source category | Strapi `subType` |
 | --- | --- |
@@ -111,30 +55,84 @@ New Office Venue image components use `subType` based on the image source catego
 | `exterior` | `Fasad Gedung` |
 | `floorplan` | `Denah Ruang` |
 
-Future upload reports include `relative_path` and `local_category` to make this mapping explicit.
+## Common Command
 
-## Useful Commands
+Full production flow:
 
-Preview upload:
+```bash
+export STRAPI_ADMIN_JWT='<admin-jwt>'
+
+make remove CONCURRENCY=4
+make upload-strapi-images STRAPI_EXTRA_ARGS=--confirm-production
+```
+
+Upload automatically runs the content-link step after the upload report is written.
+
+Link one Office Venue slug from the latest report:
+
+```bash
+make link-strapi-office-venue-images \
+  STRAPI_OFFICE=graha-cimb-niaga \
+  STRAPI_EXTRA_ARGS=--confirm-production
+```
+
+Preview upload without changing Strapi:
 
 ```bash
 make upload-strapi-images-dry-run
 ```
 
-Retry failed watermark removals:
+## Report Folder Structure
 
-```bash
-make retry-failed CONCURRENCY=4
+| Path | Purpose |
+| --- | --- |
+| `raw-images/` | Source images before watermark removal. |
+| `clean-images/` | Cleaned images produced by `make remove`. |
+| `logs/strapi-upload-reports/` | Upload and content-link reports. |
+| `rules/strapi-office-venue-existing-filenames.txt` | Uploaded/existing filenames skipped by later watermark-removal runs. |
+
+Each upload writes reports like:
+
+```text
+logs/strapi-upload-reports/strapi-upload-report-<timestamp>.csv
+logs/strapi-upload-reports/strapi-upload-report-<timestamp>.md
 ```
 
-Continue in-progress watermark removals:
+The CSV report is used by `make link-strapi-office-venue-images`. The Markdown report is for human review and includes media URLs, content URLs, and relation status after linking.
 
-```bash
-make continue-progress CONCURRENCY=4
+Future upload reports include:
+
+```text
+relative_path
+local_category
 ```
 
-Show status:
+Those fields make the `interior` / `exterior` / `floorplan` to `subType` mapping explicit.
+
+## Available Command
+
+| Command | Purpose |
+| --- | --- |
+| `make remove CONCURRENCY=4` | Remove watermarks from raw images and write cleaned images. |
+| `make upload-strapi-images` | Upload cleaned images to Strapi, update uploaded filename rules, and link content. |
+| `make upload-strapi-images-dry-run` | Preview which images would upload. |
+| `make link-strapi-office-venue-images` | Link uploaded media from the latest report to Office Venue content. |
+| `make link-strapi-office-venue-images STRAPI_OFFICE=graha-cimb-niaga` | Link only one Office Venue slug. |
+| `make retry-failed CONCURRENCY=4` | Retry images marked failed in `logs/status.tsv`. |
+| `make continue-progress CONCURRENCY=4` | Continue images marked in progress in `logs/status.tsv`. |
+| `make status` | Show watermark-removal status summary. |
+| `make clean` | Remove generated cleaned images and temporary logs. |
+
+Production Strapi defaults to:
+
+```text
+STRAPI_BASE_URL=https://cms.rumah123.com
+STRAPI_ROOT_FOLDER_PATH=Media Library/Office Venue
+STRAPI_IMAGE_DIR=clean-images
+```
+
+Production access requires confirmation. In an interactive shell, type `production` when prompted. For non-interactive runs, pass:
 
 ```bash
-make status
+STRAPI_EXTRA_ARGS=--confirm-production
 ```
