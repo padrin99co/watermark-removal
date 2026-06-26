@@ -554,6 +554,8 @@ async function uploadGroups({ client, rootFolderId, rootFolderPath, groups, know
         reportGroup.skipped += 1;
         reportGroup.files.push({
           filename: file.filename,
+          relativePath: file.relativePath,
+          localCategory: getLocalImageCategory(file),
           status: 'skipped_existing',
           reason: 'Same name already exists in this Strapi folder',
           existingMatch: existingName,
@@ -575,6 +577,8 @@ async function uploadGroups({ client, rootFolderId, rootFolderPath, groups, know
         rememberUploadedFile(existingNames, file, { id: strapiAssetId, assetName: strapiAssetName, url: strapiUrl });
         reportGroup.files.push({
           filename: file.filename,
+          relativePath: file.relativePath,
+          localCategory: getLocalImageCategory(file),
           status: 'uploaded',
           reason: '',
           existingMatch: '',
@@ -588,6 +592,8 @@ async function uploadGroups({ client, rootFolderId, rootFolderPath, groups, know
         reportGroup.failed += 1;
         reportGroup.files.push({
           filename: file.filename,
+          relativePath: file.relativePath,
+          localCategory: getLocalImageCategory(file),
           status: 'failed',
           reason: error.message,
           existingMatch: '',
@@ -871,6 +877,24 @@ function buildMediaLibraryFolderPath(rootFolderPath, officeName) {
     .join('/');
 }
 
+function getLocalImageCategory(file) {
+  return detectLocalImageCategory(file.relativePath) || detectLocalImageCategory(file.filename) || 'exterior';
+}
+
+function detectLocalImageCategory(value) {
+  const normalized = String(value || '').toLowerCase();
+  if (/(^|[\\/_-])floor[\s_-]*plan([\\/_\-.]|$)|(^|[\\/_-])floorplan([\\/_\-.]|$)/.test(normalized)) {
+    return 'floorplan';
+  }
+  if (/(^|[\\/_-])interior([\\/_\-.]|$)/.test(normalized)) {
+    return 'interior';
+  }
+  if (/(^|[\\/_-])exterior([\\/_\-.]|$)/.test(normalized)) {
+    return 'exterior';
+  }
+  return '';
+}
+
 function createPlannedReportGroups(groups, knownFolders, rootFolderPath) {
   const foldersByName = new Map(knownFolders.map((folder) => [normalizeKey(folder.name), folder]));
 
@@ -890,6 +914,8 @@ function createPlannedReportGroups(groups, knownFolders, rootFolderPath) {
       failed: 0,
       files: group.files.map((file) => ({
         filename: file.filename,
+        relativePath: file.relativePath,
+        localCategory: getLocalImageCategory(file),
         status: 'planned',
         reason: 'Dry run only',
         existingMatch: '',
@@ -1011,6 +1037,8 @@ function buildCsvReport({ groups }) {
       'before_asset_count',
       'after_asset_count',
       'local_image_count',
+      'relative_path',
+      'local_category',
       'filename',
       'status',
       'strapi_asset_id',
@@ -1030,6 +1058,8 @@ function buildCsvReport({ groups }) {
         emptyIfNull(group.beforeAssetCount),
         emptyIfNull(group.afterAssetCount),
         group.localImageCount,
+        file.relativePath,
+        file.localCategory,
         file.filename,
         file.status,
         file.strapiAssetId,

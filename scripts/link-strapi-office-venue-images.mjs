@@ -10,6 +10,11 @@ const DEFAULT_CONTENT_FIELD = 'image';
 const DEFAULT_COMPONENT_SOURCE = 'Rumah123';
 const DEFAULT_COMPONENT_TYPE = 'Top Preview';
 const DEFAULT_COMPONENT_SUB_TYPE = 'Fasad Gedung';
+const SUB_TYPE_BY_CATEGORY = new Map([
+  ['interior', 'Foto Lainnya'],
+  ['exterior', 'Fasad Gedung'],
+  ['floorplan', 'Denah Ruang'],
+]);
 
 async function main() {
   const options = parseOptions(process.argv.slice(2));
@@ -99,6 +104,9 @@ async function linkVenueGroup({ client, options, venueGroup }) {
   console.log(`Existing imageUrl media IDs: ${[...existingAssetIds].sort((a, b) => a - b).join(', ') || 'none'}`);
   console.log(`Already linked: ${venueGroup.assets.length - missingAssets.length}`);
   console.log(`To append: ${missingAssets.length}`);
+  for (const asset of missingAssets) {
+    console.log(`- append ${asset.filename} as ${asset.subType} (${asset.category})`);
+  }
 
   let afterEntry = beforeEntry;
   let didUpdate = false;
@@ -386,7 +394,7 @@ function buildNewImageComponent(options, asset) {
     imageUrl: [asset.id],
     source: options.source,
     type: options.type,
-    subType: options.subType,
+    subType: asset.subType || options.subType,
   };
 }
 
@@ -451,11 +459,51 @@ function getSuccessfulAssets(rows) {
       url: row.strapi_url || '',
       officeName: row.office_name || '',
       folder: row.media_library_folder || '',
+      category: getAssetCategory(row),
+      subType: getAssetSubType(row),
       status: row.status || '',
     });
   }
 
   return [...assetsById.values()];
+}
+
+function getAssetSubType(row) {
+  return SUB_TYPE_BY_CATEGORY.get(getAssetCategory(row)) || DEFAULT_COMPONENT_SUB_TYPE;
+}
+
+function getAssetCategory(row) {
+  const values = [
+    row.local_category,
+    row.category,
+    row.relative_path,
+    row.local_path,
+    row.source_path,
+    row.filename,
+  ].filter(Boolean);
+
+  for (const value of values) {
+    const category = detectCategory(value);
+    if (category) {
+      return category;
+    }
+  }
+
+  return 'exterior';
+}
+
+function detectCategory(value) {
+  const normalized = String(value).toLowerCase();
+  if (/(^|[\\/_-])floor[\s_-]*plan([\\/_\-.]|$)|(^|[\\/_-])floorplan([\\/_\-.]|$)/.test(normalized)) {
+    return 'floorplan';
+  }
+  if (/(^|[\\/_-])interior([\\/_\-.]|$)/.test(normalized)) {
+    return 'interior';
+  }
+  if (/(^|[\\/_-])exterior([\\/_\-.]|$)/.test(normalized)) {
+    return 'exterior';
+  }
+  return '';
 }
 
 function filterAssetsByOffice(assets, officeFilters) {
@@ -525,7 +573,8 @@ async function appendMarkdownRelationReport(markdownPath, result) {
   lines.push(`Content match field: ${options.officeVenueId ? 'id' : options.matchField}`);
   lines.push(`Field: ${options.contentField}`);
   lines.push(`Component: office-venue-image.image`);
-  lines.push(`Component defaults: source=${options.source}, type=${options.type}, subType=${options.subType}`);
+  lines.push(`Component defaults: source=${options.source}, type=${options.type}, fallback subType=${options.subType}`);
+  lines.push('subType mapping: interior=Foto Lainnya, exterior=Fasad Gedung, floorplan=Denah Ruang');
   lines.push(`Mode: ${options.dryRun ? 'dry-run' : 'update'}`);
   lines.push('');
   lines.push('| Metric | Count |');
@@ -537,8 +586,8 @@ async function appendMarkdownRelationReport(markdownPath, result) {
   lines.push(`| Verified linked | ${linkedIds.size} |`);
   lines.push(`| Missing after verification | ${missingAfterUpdate.length} |`);
   lines.push('');
-  lines.push('| Office | Content ID | Content URL | Asset ID | Filename | Folder | Strapi URL | Relation Status |');
-  lines.push('| --- | ---: | --- | ---: | --- | --- | --- | --- |');
+  lines.push('| Office | Content ID | Content URL | Asset ID | Filename | Category | subType | Folder | Strapi URL | Relation Status |');
+  lines.push('| --- | ---: | --- | ---: | --- | --- | --- | --- | --- | --- |');
 
   for (const item of results) {
     const contentUrl = `${options.baseUrl}/admin/content-manager/collectionType/${OFFICE_VENUE_UID}/${item.entry.id}`;
@@ -546,13 +595,13 @@ async function appendMarkdownRelationReport(markdownPath, result) {
       const status = linkedIds.has(asset.id)
         ? appendedIds.has(asset.id) ? 'linked_appended' : 'linked_existing'
         : 'missing';
-      lines.push(`| ${escapeMarkdownCell(item.venueGroup.officeName)} | ${item.entry.id} | ${contentUrl} | ${asset.id} | ${escapeMarkdownCell(asset.filename)} | ${escapeMarkdownCell(asset.folder)} | ${escapeMarkdownCell(asset.url)} | ${status} |`);
+      lines.push(`| ${escapeMarkdownCell(item.venueGroup.officeName)} | ${item.entry.id} | ${contentUrl} | ${asset.id} | ${escapeMarkdownCell(asset.filename)} | ${escapeMarkdownCell(asset.category)} | ${escapeMarkdownCell(asset.subType)} | ${escapeMarkdownCell(asset.folder)} | ${escapeMarkdownCell(asset.url)} | ${status} |`);
     }
   }
 
   for (const group of skippedGroups) {
     for (const asset of group.assets) {
-      lines.push(`| ${escapeMarkdownCell(group.officeName)} |  |  | ${asset.id} | ${escapeMarkdownCell(asset.filename)} | ${escapeMarkdownCell(asset.folder)} | ${escapeMarkdownCell(asset.url)} | content_not_found |`);
+      lines.push(`| ${escapeMarkdownCell(group.officeName)} |  |  | ${asset.id} | ${escapeMarkdownCell(asset.filename)} | ${escapeMarkdownCell(asset.category)} | ${escapeMarkdownCell(asset.subType)} | ${escapeMarkdownCell(asset.folder)} | ${escapeMarkdownCell(asset.url)} | content_not_found |`);
     }
   }
 
