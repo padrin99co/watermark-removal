@@ -15,6 +15,7 @@ RECT ?= 20,30,180,60
 MASK ?= $(MASK_DIR)/$(IMAGE_DIR)$(IMAGE_STEM).png
 OUTPUT ?= $(CLEAN_DIR)/$(IMAGE)
 PYTHON ?= python3
+BASH ?= bash
 CODEX ?= codex
 CODEX_MODEL ?= gpt-5.4-mini
 CODEX_LOG ?= $(LOG_DIR)/$(SAFE_IMAGE)-codex-run.txt
@@ -122,7 +123,7 @@ remove-one: check-image
 		rm -f "$(OUTPUT)"; \
 	fi; \
 	set +e; \
-	STATUS_FILE="$(STATUS_LOG)" STATUS_OUTPUT="$(OUTPUT)" $(PROGRESS_RUN) "$(IMAGE)" $(CODEX) exec -C . --sandbox workspace-write -m $(CODEX_MODEL) \
+	STATUS_FILE="$(STATUS_LOG)" STATUS_OUTPUT="$(OUTPUT)" $(BASH) $(PROGRESS_RUN) "$(IMAGE)" $(CODEX) exec -C . --sandbox workspace-write -m $(CODEX_MODEL) \
 		--image $(RAW_DIR)/$(IMAGE) \
 		--output-last-message $(CODEX_LOG) \
 		"Use the imagegen skill and Codex image editing to remove only the visible semi-transparent watermark/logo from $(RAW_DIR)/$(IMAGE). Save exactly one cleaned output to $(OUTPUT), keeping the same filename and extension as the source image. Preserve the same source image dimensions, building, streetlight, sky, colors, perspective, facade texture, window grid, edges, and composition. The cleaned area must look natural and consistent with surrounding pixels. Do not leave visible watermark text, logo fragments, ghost text, blurry smears, smooth patches, translucent rectangles, flat fills, or patch-like artifacts. Reconstruct plausible building/sky detail instead of covering the mark. Before finishing, visually inspect the saved output. If any watermark text/logo/remnant is still visible or the edit looks unnatural, delete $(OUTPUT), report the issue, and do not claim success. Do not use OpenCV inpainting for the final output. Do not modify source code or Git. Finish only after $(OUTPUT) exists, its dimensions match the source, and no visible watermark/remnant remains."; \
@@ -147,19 +148,19 @@ remove-api: check-image mask
 batch:
 	@mkdir -p $(CLEAN_DIR)
 	@mkdir -p $(LOG_DIR)
-	@RAW_DIR="$(RAW_DIR)" IMAGE_SCOPE="$(IMAGE_SCOPE)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" EXCLUDE_FILENAMES="$(EXCLUDE_FILENAMES)" $(BATCH_RUN)
+	@RAW_DIR="$(RAW_DIR)" IMAGE_SCOPE="$(IMAGE_SCOPE)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" EXCLUDE_FILENAMES="$(EXCLUDE_FILENAMES)" $(BASH) $(BATCH_RUN)
 	@if [ "$(DRY_RUN)" != "1" ]; then $(MAKE) --no-print-directory status; fi
 
 retry-failed:
 	@mkdir -p $(CLEAN_DIR)
 	@mkdir -p $(LOG_DIR)
-	@RAW_DIR="$(RAW_DIR)" STATUS_LOG="$(STATUS_LOG)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" EXCLUDE_FILENAMES="$(EXCLUDE_FILENAMES)" $(RETRY_FAILED_RUN)
+	@RAW_DIR="$(RAW_DIR)" STATUS_LOG="$(STATUS_LOG)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" EXCLUDE_FILENAMES="$(EXCLUDE_FILENAMES)" $(BASH) $(RETRY_FAILED_RUN)
 	@if [ "$(DRY_RUN)" != "1" ]; then $(MAKE) --no-print-directory status; fi
 
 continue-progress:
 	@mkdir -p $(CLEAN_DIR)
 	@mkdir -p $(LOG_DIR)
-	@RAW_DIR="$(RAW_DIR)" STATUS_LOG="$(STATUS_LOG)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" EXCLUDE_FILENAMES="$(EXCLUDE_FILENAMES)" $(CONTINUE_PROGRESS_RUN)
+	@RAW_DIR="$(RAW_DIR)" STATUS_LOG="$(STATUS_LOG)" CONCURRENCY="$(CONCURRENCY)" DRY_RUN="$(DRY_RUN)" EXCLUDE_FILENAMES="$(EXCLUDE_FILENAMES)" $(BASH) $(CONTINUE_PROGRESS_RUN)
 	@if [ "$(DRY_RUN)" != "1" ]; then $(MAKE) --no-print-directory status; fi
 
 mark-failed: check-image
