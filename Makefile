@@ -41,6 +41,7 @@ STRAPI_OFFICE ?=
 STRAPI_FOLDER_FIELD ?= auto
 STRAPI_UPLOAD_REPORT ?=
 STRAPI_OFFICE_VENUE_ID ?=
+STRAPI_OFFICE_VENUE_MATCH_FIELD ?= slug
 STRAPI_EXTRA_ARGS ?=
 
 export STRAPI_BASE_URL STRAPI_ADMIN_JWT STRAPI_ROOT_FOLDER_ID STRAPI_ROOT_FOLDER_NAME STRAPI_ROOT_FOLDER_PATH STRAPI_REPORT_DIR STRAPI_PAGE_SIZE
@@ -92,6 +93,7 @@ help:
 	@echo "  STRAPI_OFFICE=$(STRAPI_OFFICE)"
 	@echo "  STRAPI_UPLOAD_REPORT=$(STRAPI_UPLOAD_REPORT)"
 	@echo "  STRAPI_OFFICE_VENUE_ID=$(STRAPI_OFFICE_VENUE_ID)"
+	@echo "  STRAPI_OFFICE_VENUE_MATCH_FIELD=$(STRAPI_OFFICE_VENUE_MATCH_FIELD)"
 
 install:
 	cd $(APP_DIR) && $(PYTHON) -m pip install --user -e .
@@ -203,11 +205,11 @@ upload-strapi-images-dry-run:
 link-strapi-office-venue-images:
 	@test -n "$(STRAPI_UPLOAD_REPORT)" || (echo "error: STRAPI_UPLOAD_REPORT is required" && exit 2)
 	@test -f "$(STRAPI_UPLOAD_REPORT)" || (echo "error: report not found: $(STRAPI_UPLOAD_REPORT)" && exit 2)
-	@test -n "$(STRAPI_OFFICE_VENUE_ID)" || (echo "error: STRAPI_OFFICE_VENUE_ID is required" && exit 2)
 	@test -n "$$STRAPI_ADMIN_JWT" || (echo "error: STRAPI_ADMIN_JWT is required" && exit 2)
 	node "$(STRAPI_LINK_IMAGES_SCRIPT)" \
 		--report "$(STRAPI_UPLOAD_REPORT)" \
-		--office-venue-id "$(STRAPI_OFFICE_VENUE_ID)" \
+		--match-field "$(STRAPI_OFFICE_VENUE_MATCH_FIELD)" \
+		$(if $(STRAPI_OFFICE_VENUE_ID),--office-venue-id "$(STRAPI_OFFICE_VENUE_ID)",) \
 		$(STRAPI_EXTRA_ARGS) \
 		--confirm
 

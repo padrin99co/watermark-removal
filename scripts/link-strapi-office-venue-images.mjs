@@ -22,9 +22,6 @@ async function main() {
   if (!options.reportPath) {
     throw new Error('--report is required');
   }
-  if (!options.officeVenueId) {
-    throw new Error('--office-venue-id is required');
-  }
   if (!options.token) {
     throw new Error('STRAPI_ADMIN_JWT or --token is required');
   }
@@ -44,35 +41,24 @@ async function main() {
   }
 
   const client = createClient(options);
-  const beforeEntry = await getOfficeVenueEntry(client, options.officeVenueId);
-  const existingComponents = normalizeComponentList(getEntryField(beforeEntry, options.contentField));
-  const existingAssetIds = new Set(existingComponents.flatMap((component) => getMediaIds(component.imageUrl)));
-  const missingAssets = assets.filter((asset) => !existingAssetIds.has(asset.id));
-  const payloadComponents = [
-    ...existingComponents.map(normalizeExistingImageComponent),
-    ...missingAssets.map((asset) => buildNewImageComponent(options, asset)),
-  ];
+  const resolved = options.officeVenueId
+    ? { venueGroups: [{ officeName: `office-venue-${options.officeVenueId}`, assets, entry: await getOfficeVenueEntry(client, options.officeVenueId) }], skippedGroups: [] }
+    : await resolveVenueGroups(client, assets, options.matchField);
+  const { venueGroups, skippedGroups } = resolved;
+  const results = [];
 
-  console.log(`Office Venue ${options.officeVenueId}`);
-  console.log(`Field: ${options.contentField}`);
-  console.log(`Report assets: ${assets.length}`);
-  console.log(`Already linked: ${assets.length - missingAssets.length}`);
-  console.log(`To append: ${missingAssets.length}`);
-
-  let afterEntry = beforeEntry;
-  if (!options.dryRun) {
-    await updateOfficeVenueImages(client, options.officeVenueId, options.contentField, payloadComponents);
-    afterEntry = await getOfficeVenueEntry(client, options.officeVenueId);
+  for (const venueGroup of venueGroups) {
+    results.push(await linkVenueGroup({ client, options, venueGroup }));
   }
 
-  const afterComponents = normalizeComponentList(getEntryField(afterEntry, options.contentField));
-  const afterAssetIds = new Set(afterComponents.flatMap((component) => getMediaIds(component.imageUrl)));
-  const linkedAssets = assets.filter((asset) => afterAssetIds.has(asset.id));
-  const missingAfterUpdate = assets.filter((asset) => !afterAssetIds.has(asset.id));
+  const totalLinked = results.reduce((sum, result) => sum + result.linkedAssets.length, 0);
+  const totalMissing = results.reduce((sum, result) => sum + result.missingAfterUpdate.length, 0);
 
-  console.log(`Verified linked: ${linkedAssets.length}`);
-  if (missingAfterUpdate.length > 0) {
-    console.log(`Missing after verification: ${missingAfterUpdate.length}`);
+  console.log(`Venue entries: ${venueGroups.length}`);
+  console.log(`Unmatched venue groups: ${skippedGroups.length}`);
+  console.log(`Verified linked: ${totalLinked}`);
+  if (totalMissing > 0) {
+    console.log(`Missing after verification: ${totalMissing}`);
   }
 
   if (!options.noReport) {
@@ -80,15 +66,49 @@ async function main() {
       options,
       csvPath,
       assets,
-      missingAssets,
-      linkedAssets,
-      missingAfterUpdate,
+      results,
+      skippedGroups,
     });
   }
 
-  if (!options.dryRun && missingAfterUpdate.length > 0) {
+  if (!options.dryRun && totalMissing > 0) {
     process.exitCode = 1;
   }
+}
+
+async function linkVenueGroup({ client, options, venueGroup }) {
+  const beforeEntry = venueGroup.entry;
+  const existingComponents = normalizeComponentList(getEntryField(beforeEntry, options.contentField));
+  const existingAssetIds = new Set(existingComponents.flatMap((component) => getMediaIds(component.imageUrl)));
+  const missingAssets = venueGroup.assets.filter((asset) => !existingAssetIds.has(asset.id));
+  const payloadComponents = [
+    ...existingComponents.map(normalizeExistingImageComponent),
+    ...missingAssets.map((asset) => buildNewImageComponent(options, asset)),
+  ];
+
+  console.log(`\nOffice Venue ${beforeEntry.id} (${venueGroup.officeName})`);
+  console.log(`Field: ${options.contentField}`);
+  console.log(`Report assets: ${venueGroup.assets.length}`);
+  console.log(`Already linked: ${venueGroup.assets.length - missingAssets.length}`);
+  console.log(`To append: ${missingAssets.length}`);
+
+  let afterEntry = beforeEntry;
+  if (!options.dryRun) {
+    await updateOfficeVenueImages(client, beforeEntry.id, options.contentField, payloadComponents);
+    afterEntry = await getOfficeVenueEntry(client, beforeEntry.id);
+  }
+
+  const afterComponents = normalizeComponentList(getEntryField(afterEntry, options.contentField));
+  const afterAssetIds = new Set(afterComponents.flatMap((component) => getMediaIds(component.imageUrl)));
+  const linkedAssets = venueGroup.assets.filter((asset) => afterAssetIds.has(asset.id));
+  const missingAfterUpdate = venueGroup.assets.filter((asset) => !afterAssetIds.has(asset.id));
+
+  console.log(`Verified linked: ${linkedAssets.length}`);
+  if (missingAfterUpdate.length > 0) {
+    console.log(`Missing after verification: ${missingAfterUpdate.length}`);
+  }
+
+  return { venueGroup, entry: beforeEntry, missingAssets, linkedAssets, missingAfterUpdate };
 }
 
 function parseOptions(argv) {
@@ -102,6 +122,7 @@ function parseOptions(argv) {
     baseUrl,
     token: getValue(parsed, 'token') || process.env.STRAPI_ADMIN_JWT || '',
     officeVenueId: getValue(parsed, 'office-venue-id') || process.env.STRAPI_OFFICE_VENUE_ID || '',
+    matchField: getValue(parsed, 'match-field') || process.env.STRAPI_OFFICE_VENUE_MATCH_FIELD || 'slug',
     contentField: getValue(parsed, 'content-field') || process.env.STRAPI_OFFICE_VENUE_IMAGE_FIELD || DEFAULT_CONTENT_FIELD,
     source: getValue(parsed, 'source') || process.env.STRAPI_OFFICE_VENUE_IMAGE_SOURCE || DEFAULT_COMPONENT_SOURCE,
     type: getValue(parsed, 'type') || process.env.STRAPI_OFFICE_VENUE_IMAGE_TYPE || DEFAULT_COMPONENT_TYPE,
@@ -197,6 +218,21 @@ async function getOfficeVenueEntry(client, id) {
   return unwrapEntry(body);
 }
 
+async function findOfficeVenueEntry(client, field, value) {
+  const body = await requestJson(client, `/content-manager/collection-types/${encodeURIComponent(OFFICE_VENUE_UID)}`, {
+    params: {
+      page: 1,
+      pageSize: 2,
+      [`filters[$and][0][${field}][$eq]`]: value,
+    },
+  });
+  const entries = unwrapEntries(body);
+  if (entries.length > 1) {
+    throw new Error(`Multiple Office Venue entries matched ${field}=${value}`);
+  }
+  return entries[0] || null;
+}
+
 async function updateOfficeVenueImages(client, id, field, components) {
   return requestJson(client, `/content-manager/collection-types/${encodeURIComponent(OFFICE_VENUE_UID)}/${encodeURIComponent(id)}`, {
     method: 'PUT',
@@ -207,6 +243,12 @@ async function updateOfficeVenueImages(client, id, field, components) {
 
 async function requestJson(client, pathname, options = {}) {
   const url = new URL(pathname, `${client.baseUrl}/`);
+  for (const [key, value] of Object.entries(options.params || {})) {
+    if (value !== undefined && value !== null && value !== '') {
+      url.searchParams.append(key, String(value));
+    }
+  }
+
   const response = await fetch(url, {
     method: options.method || 'GET',
     headers: {
@@ -246,6 +288,42 @@ function unwrapEntry(body) {
     return body.data;
   }
   return body;
+}
+
+function unwrapEntries(body) {
+  const list = Array.isArray(body?.results) ? body.results : Array.isArray(body?.data) ? body.data : Array.isArray(body) ? body : [];
+  return list.map(unwrapEntry);
+}
+
+async function resolveVenueGroups(client, assets, matchField) {
+  const assetsByOffice = groupAssetsByOffice(assets);
+  const venueGroups = [];
+  const skippedGroups = [];
+
+  for (const [officeName, officeAssets] of assetsByOffice.entries()) {
+    const entry = await findOfficeVenueEntry(client, matchField, officeName);
+    if (!entry) {
+      console.log(`- no Office Venue match for ${matchField}=${officeName}; skipping ${officeAssets.length} asset(s)`);
+      skippedGroups.push({ officeName, assets: officeAssets, skippedReason: 'not_found' });
+      continue;
+    }
+
+    venueGroups.push({ officeName, assets: officeAssets, entry });
+  }
+
+  return { venueGroups, skippedGroups };
+}
+
+function groupAssetsByOffice(assets) {
+  const groups = new Map();
+  for (const asset of assets) {
+    const key = asset.officeName || '';
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key).push(asset);
+  }
+  return groups;
 }
 
 function getEntryField(entry, field) {
@@ -379,9 +457,11 @@ function parseCsv(text) {
 }
 
 async function appendMarkdownRelationReport(markdownPath, result) {
-  const { options, csvPath, assets, missingAssets, linkedAssets, missingAfterUpdate } = result;
-  const linkedIds = new Set(linkedAssets.map((asset) => asset.id));
-  const appendedIds = new Set(missingAssets.map((asset) => asset.id));
+  const { options, csvPath, assets, results, skippedGroups } = result;
+  const linkedIds = new Set(results.flatMap((item) => item.linkedAssets.map((asset) => asset.id)));
+  const appendedIds = new Set(results.flatMap((item) => item.missingAssets.map((asset) => asset.id)));
+  const missingAfterUpdate = results.flatMap((item) => item.missingAfterUpdate);
+  const contentEntries = results.map((item) => item.entry);
   const lines = [];
 
   lines.push('');
@@ -389,7 +469,7 @@ async function appendMarkdownRelationReport(markdownPath, result) {
   lines.push('');
   lines.push(`Generated: ${new Date().toISOString()}`);
   lines.push(`Source CSV: ${csvPath}`);
-  lines.push(`Content entry: ${options.baseUrl}/admin/content-manager/collectionType/${OFFICE_VENUE_UID}/${options.officeVenueId}`);
+  lines.push(`Content match field: ${options.officeVenueId ? 'id' : options.matchField}`);
   lines.push(`Field: ${options.contentField}`);
   lines.push(`Component: office-venue-image.image`);
   lines.push(`Component defaults: source=${options.source}, type=${options.type}, subType=${options.subType}`);
@@ -398,18 +478,29 @@ async function appendMarkdownRelationReport(markdownPath, result) {
   lines.push('| Metric | Count |');
   lines.push('| --- | ---: |');
   lines.push(`| Report assets | ${assets.length} |`);
-  lines.push(`| Newly appended | ${missingAssets.length} |`);
-  lines.push(`| Verified linked | ${linkedAssets.length} |`);
+  lines.push(`| Matched content entries | ${contentEntries.length} |`);
+  lines.push(`| Unmatched venue groups | ${skippedGroups.length} |`);
+  lines.push(`| Newly appended | ${appendedIds.size} |`);
+  lines.push(`| Verified linked | ${linkedIds.size} |`);
   lines.push(`| Missing after verification | ${missingAfterUpdate.length} |`);
   lines.push('');
-  lines.push('| Asset ID | Filename | Folder | Strapi URL | Relation Status |');
-  lines.push('| ---: | --- | --- | --- | --- |');
+  lines.push('| Office | Content ID | Content URL | Asset ID | Filename | Folder | Strapi URL | Relation Status |');
+  lines.push('| --- | ---: | --- | ---: | --- | --- | --- | --- |');
 
-  for (const asset of assets) {
-    const status = linkedIds.has(asset.id)
-      ? appendedIds.has(asset.id) ? 'linked_appended' : 'linked_existing'
-      : 'missing';
-    lines.push(`| ${asset.id} | ${escapeMarkdownCell(asset.filename)} | ${escapeMarkdownCell(asset.folder)} | ${escapeMarkdownCell(asset.url)} | ${status} |`);
+  for (const item of results) {
+    const contentUrl = `${options.baseUrl}/admin/content-manager/collectionType/${OFFICE_VENUE_UID}/${item.entry.id}`;
+    for (const asset of item.venueGroup.assets) {
+      const status = linkedIds.has(asset.id)
+        ? appendedIds.has(asset.id) ? 'linked_appended' : 'linked_existing'
+        : 'missing';
+      lines.push(`| ${escapeMarkdownCell(item.venueGroup.officeName)} | ${item.entry.id} | ${contentUrl} | ${asset.id} | ${escapeMarkdownCell(asset.filename)} | ${escapeMarkdownCell(asset.folder)} | ${escapeMarkdownCell(asset.url)} | ${status} |`);
+    }
+  }
+
+  for (const group of skippedGroups) {
+    for (const asset of group.assets) {
+      lines.push(`| ${escapeMarkdownCell(group.officeName)} |  |  | ${asset.id} | ${escapeMarkdownCell(asset.filename)} | ${escapeMarkdownCell(asset.folder)} | ${escapeMarkdownCell(asset.url)} | content_not_found |`);
+    }
   }
 
   await fs.appendFile(markdownPath, `${lines.join('\n')}\n`, 'utf8');
@@ -446,16 +537,17 @@ function escapeMarkdownCell(value) {
 
 function printHelp() {
   console.log(`Usage:
-  node link-strapi-office-venue-images.mjs --report <csv-or-md> --office-venue-id <id> [options]
+  node link-strapi-office-venue-images.mjs --report <csv-or-md> [options]
 
 Required:
   --report <path>              Strapi upload report CSV or Markdown path.
-  --office-venue-id <id>       Office Venue content id, e.g. 99.
   --confirm                    Actually update Strapi. Use --dry-run to preview.
 
 Common options:
   --base-url <url>             Strapi base URL. Defaults to ${DEFAULT_STRAPI_BASE_URL}.
   --token <jwt>                Strapi admin JWT. Prefer STRAPI_ADMIN_JWT env var.
+  --match-field <field>        Office Venue field matched to report office_name. Defaults to slug.
+  --office-venue-id <id>       Optional override: link all report assets to one Office Venue id.
   --content-field <field>      Office Venue component field. Defaults to ${DEFAULT_CONTENT_FIELD}.
   --source <value>             Component source. Defaults to ${DEFAULT_COMPONENT_SOURCE}.
   --type <value>               Component type. Defaults to ${DEFAULT_COMPONENT_TYPE}.
@@ -467,7 +559,8 @@ Environment variables:
   STRAPI_BASE_URL=${DEFAULT_STRAPI_BASE_URL}
   STRAPI_ADMIN_JWT=<admin-jwt-from-browser-or-admin-api>
   STRAPI_UPLOAD_REPORT=logs/strapi-upload-reports/strapi-upload-report-....csv
-  STRAPI_OFFICE_VENUE_ID=99
+  STRAPI_OFFICE_VENUE_MATCH_FIELD=slug
+  STRAPI_OFFICE_VENUE_ID=99 # optional override
   STRAPI_CONFIRM_PRODUCTION=1
 `);
 }
