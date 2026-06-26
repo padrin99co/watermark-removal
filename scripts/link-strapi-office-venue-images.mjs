@@ -78,7 +78,13 @@ async function main() {
 }
 
 async function linkVenueGroup({ client, options, venueGroup }) {
-  const beforeEntry = venueGroup.entry;
+  const entryId = getEntityId(venueGroup.entry);
+  if (!entryId) {
+    throw new Error(`Office Venue entry for ${venueGroup.officeName} is missing an id.`);
+  }
+
+  const beforeEntry = await getOfficeVenueEntry(client, entryId);
+  venueGroup.entry = beforeEntry;
   const existingComponents = normalizeComponentList(getEntryField(beforeEntry, options.contentField));
   const existingAssetIds = new Set(existingComponents.flatMap(getComponentImageUrlIds));
   const missingAssets = venueGroup.assets.filter((asset) => !existingAssetIds.has(asset.id));
@@ -90,6 +96,7 @@ async function linkVenueGroup({ client, options, venueGroup }) {
   console.log(`\nOffice Venue ${beforeEntry.id} (${venueGroup.officeName})`);
   console.log(`Field: ${options.contentField}`);
   console.log(`Report assets: ${venueGroup.assets.length}`);
+  console.log(`Existing imageUrl media IDs: ${[...existingAssetIds].sort((a, b) => a - b).join(', ') || 'none'}`);
   console.log(`Already linked: ${venueGroup.assets.length - missingAssets.length}`);
   console.log(`To append: ${missingAssets.length}`);
 
