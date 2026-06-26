@@ -94,9 +94,13 @@ async function linkVenueGroup({ client, options, venueGroup }) {
   console.log(`To append: ${missingAssets.length}`);
 
   let afterEntry = beforeEntry;
-  if (!options.dryRun) {
+  let didUpdate = false;
+  if (!options.dryRun && missingAssets.length > 0) {
     await updateOfficeVenueImages(client, beforeEntry.id, options.contentField, payloadComponents);
     afterEntry = await getOfficeVenueEntry(client, beforeEntry.id);
+    didUpdate = true;
+  } else if (missingAssets.length === 0) {
+    console.log('No missing assets; skipping Strapi update.');
   }
 
   const afterComponents = normalizeComponentList(getEntryField(afterEntry, options.contentField));
@@ -109,7 +113,7 @@ async function linkVenueGroup({ client, options, venueGroup }) {
     console.log(`Missing after verification: ${missingAfterUpdate.length}`);
   }
 
-  return { venueGroup, entry: beforeEntry, missingAssets, linkedAssets, missingAfterUpdate };
+  return { venueGroup, entry: beforeEntry, missingAssets, linkedAssets, missingAfterUpdate, didUpdate };
 }
 
 function parseOptions(argv) {
@@ -376,10 +380,16 @@ function getMediaIds(value) {
     return [];
   }
   if (Array.isArray(value)) {
-    return value.map(getEntityId).filter(Boolean);
+    return value.flatMap(getMediaIds).filter(Boolean);
   }
   if (Array.isArray(value.data)) {
-    return value.data.map(getEntityId).filter(Boolean);
+    return value.data.flatMap(getMediaIds).filter(Boolean);
+  }
+  if (value.data) {
+    return getMediaIds(value.data);
+  }
+  if (value.attributes) {
+    return getMediaIds({ id: value.id, ...value.attributes });
   }
   const id = getEntityId(value);
   return id ? [id] : [];
@@ -394,6 +404,9 @@ function getEntityId(value) {
   }
   if (value?.id) {
     return Number(value.id);
+  }
+  if (value?.documentId && /^\d+$/.test(String(value.documentId))) {
+    return Number(value.documentId);
   }
   return null;
 }
