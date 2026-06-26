@@ -13,6 +13,8 @@ raw-images/*
 !raw-images/.gitkeep
 logs/*
 !logs/.gitkeep
+!logs/strapi-upload-reports/
+!logs/strapi-upload-reports/**
 
 # Generated watermark-removal experiment artifacts
 /bilat*_diffmask*.jpg
