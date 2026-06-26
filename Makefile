@@ -192,6 +192,7 @@ upload-strapi-images:
 		$(if $(STRAPI_OFFICE),--office "$(STRAPI_OFFICE)",) \
 		$(STRAPI_EXTRA_ARGS) \
 		--confirm
+	$(MAKE) --no-print-directory link-strapi-office-venue-images STRAPI_EXTRA_ARGS="$(STRAPI_EXTRA_ARGS)" STRAPI_OFFICE="$(STRAPI_OFFICE)"
 
 upload-strapi-images-dry-run:
 	@test -d "$(STRAPI_IMAGE_DIR)" || (echo "error: image folder not found: $(STRAPI_IMAGE_DIR)" && exit 2)
