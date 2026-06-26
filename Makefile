@@ -30,7 +30,7 @@ FORCE ?= 0
 REASON ?= Needs retry
 EXCLUDE_FILENAMES ?= rules/strapi-office-venue-existing-filenames.txt
 STRAPI_UPLOAD_SCRIPT ?= scripts/upload-strapi-images.mjs
-STRAPI_BASE_URL ?= https://cms.develop.99iddev.net
+STRAPI_BASE_URL ?= https://cms.rumah123.com
 STRAPI_IMAGE_DIR ?= $(CLEAN_DIR)
 STRAPI_REPORT_DIR ?= $(LOG_DIR)/strapi-upload-reports
 STRAPI_EXISTING_FILENAMES ?= rules/strapi-office-venue-existing-filenames.txt
@@ -65,6 +65,7 @@ help:
 	@echo "  export STRAPI_ADMIN_JWT=<develop-admin-jwt>"
 	@echo "  make upload-strapi-images-dry-run"
 	@echo "  make upload-strapi-images"
+	@echo "  make upload-strapi-images STRAPI_EXTRA_ARGS=--confirm-production  # required for production"
 	@echo ""
 	@echo "Variables:"
 	@echo "  IMAGE=$(IMAGE)"
@@ -172,20 +173,14 @@ upload-strapi-images:
 	@test -d "$(STRAPI_IMAGE_DIR)" || (echo "error: image folder not found: $(STRAPI_IMAGE_DIR)" && exit 2)
 	@test -n "$$STRAPI_ADMIN_JWT" || (echo "error: STRAPI_ADMIN_JWT is required" && exit 2)
 	@mkdir -p "$(STRAPI_REPORT_DIR)" "$(dir $(STRAPI_EXISTING_FILENAMES))"
-	@set -e; \
-	before_marker="$$(mktemp)"; \
-	find "$(STRAPI_REPORT_DIR)" -maxdepth 1 -type f -name 'strapi-upload-report-*.csv' -print > "$$before_marker" 2>/dev/null || true; \
 	node "$(STRAPI_UPLOAD_SCRIPT)" \
 		--dir "$(STRAPI_IMAGE_DIR)" \
 		--report-dir "$(STRAPI_REPORT_DIR)" \
+		--existing-filenames "$(STRAPI_EXISTING_FILENAMES)" \
 		--folder-field "$(STRAPI_FOLDER_FIELD)" \
 		$(if $(STRAPI_OFFICE),--office "$(STRAPI_OFFICE)",) \
 		$(STRAPI_EXTRA_ARGS) \
-		--confirm; \
-	report="$$(find "$(STRAPI_REPORT_DIR)" -maxdepth 1 -type f -name 'strapi-upload-report-*.csv' -newer "$$before_marker" -print | sort | tail -n 1)"; \
-	rm -f "$$before_marker"; \
-	test -n "$$report" || (echo "error: upload completed but no new CSV report was found in $(STRAPI_REPORT_DIR)" && exit 2); \
-	node -e 'const fs=require("fs"); const [report,out]=process.argv.slice(1); const text=fs.readFileSync(report,"utf8"); const rows=[]; let row=[], cell="", quote=false; for (let i=0;i<text.length;i++){ const ch=text[i], next=text[i+1]; if (quote && ch==="\"" && next==="\""){ cell+="\""; i++; } else if (ch==="\""){ quote=!quote; } else if (!quote && ch===","){ row.push(cell); cell=""; } else if (!quote && (ch==="\n" || ch==="\r")){ if (ch==="\r" && next==="\n") i++; row.push(cell); if (row.some(Boolean)) rows.push(row); row=[]; cell=""; } else { cell+=ch; } } if (cell || row.length){ row.push(cell); rows.push(row); } const header=rows.shift() || []; const filenameIndex=header.indexOf("filename"); const statusIndex=header.indexOf("status"); if (filenameIndex < 0 || statusIndex < 0) throw new Error("CSV report is missing filename/status columns"); const done=new Set(["uploaded","skipped_existing"]); const existing=fs.existsSync(out) ? fs.readFileSync(out,"utf8").split(/\r?\n/).filter(Boolean) : []; const names=rows.filter((r)=>done.has(r[statusIndex])).map((r)=>r[filenameIndex]).filter(Boolean); const merged=[...new Set([...existing,...names])].sort((a,b)=>a.localeCompare(b,"en",{numeric:true})); fs.writeFileSync(out, merged.join("\n") + (merged.length ? "\n" : "")); const failed=rows.filter((r)=>r[statusIndex]==="failed").length; console.log("Updated " + out + ": added " + names.length + " uploaded/existing filename(s) from " + report + "."); if (failed) { console.error("warning: " + failed + " failed upload(s) were not added."); process.exitCode=1; }' "$$report" "$(STRAPI_EXISTING_FILENAMES)"
+		--confirm
 
 upload-strapi-images-dry-run:
 	@test -d "$(STRAPI_IMAGE_DIR)" || (echo "error: image folder not found: $(STRAPI_IMAGE_DIR)" && exit 2)

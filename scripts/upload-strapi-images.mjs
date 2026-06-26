@@ -6,6 +6,7 @@ import path from 'node:path';
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif']);
 const DEFAULT_PAGE_SIZE = 100;
 const DEFAULT_STRAPI_BASE_URL = 'https://cms.develop.99iddev.net';
+const PRODUCTION_STRAPI_BASE_URL = 'https://cms.rumah123.com';
 const DEFAULT_ROOT_FOLDER_PATH = 'Media Library/Office Venue';
 
 async function main() {
@@ -32,6 +33,8 @@ async function main() {
   let knownFolders = [];
 
   if (client) {
+    await confirmProductionAccess(options);
+
     if (!rootFolderId) {
       const rootFolder = options.rootFolderPath
         ? await findFolderByPath(client, options.rootFolderPath)
@@ -68,7 +71,7 @@ async function main() {
         startedAt,
         finishedAt: new Date(),
         rootFolderId,
-        groups: createPlannedReportGroups(selectedGroups, knownFolders),
+        groups: createPlannedReportGroups(selectedGroups, knownFolders, getReportRootFolderPath(options, rootFolderId)),
       });
     }
     return;
@@ -81,6 +84,7 @@ async function main() {
   const uploadReportGroups = await uploadGroups({
     client,
     rootFolderId,
+    rootFolderPath: getReportRootFolderPath(options, rootFolderId),
     groups: selectedGroups,
     knownFolders,
     createFolders: options.createFolders,
@@ -97,6 +101,8 @@ async function main() {
       rootFolderId,
       groups: uploadReportGroups,
     });
+  } else if (options.existingFilenamesPath) {
+    await updateExistingFilenamesFromGroups(options.existingFilenamesPath, uploadReportGroups);
   }
 }
 
@@ -137,13 +143,42 @@ function parseOptions(argv) {
     listOffices: hasFlag(parsed, 'list-offices'),
     dryRun: explicitDryRun || !confirm,
     confirm,
+    confirmProduction: hasFlag(parsed, 'confirm-production') || process.env.STRAPI_CONFIRM_PRODUCTION === '1',
     createFolders: !hasFlag(parsed, 'no-create-folders'),
     skipExisting: !hasFlag(parsed, 'no-skip-existing'),
     folderField,
     reportDir: path.resolve(getValue(parsed, 'report-dir') || process.env.STRAPI_REPORT_DIR || path.join(dir, 'strapi-upload-reports')),
+    existingFilenamesPath: getValue(parsed, 'existing-filenames') || process.env.STRAPI_EXISTING_FILENAMES || '',
     noReport: hasFlag(parsed, 'no-report'),
     pageSize: Number(getValue(parsed, 'page-size') || process.env.STRAPI_PAGE_SIZE || DEFAULT_PAGE_SIZE),
   };
+}
+
+async function confirmProductionAccess(options) {
+  if (!isProductionBaseUrl(options.baseUrl) || options.confirmProduction) {
+    return;
+  }
+
+  if (!process.stdin.isTTY || !process.stdout.isTTY) {
+    throw new Error(`Refusing to access production ${PRODUCTION_STRAPI_BASE_URL} without confirmation. Re-run interactively or pass --confirm-production / STRAPI_CONFIRM_PRODUCTION=1.`);
+  }
+
+  const { createInterface } = await import('node:readline/promises');
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+
+  try {
+    console.log(`\nProduction Strapi target detected: ${PRODUCTION_STRAPI_BASE_URL}`);
+    const answer = await rl.question('Type "production" to continue, or anything else to abort: ');
+    if (answer.trim() !== 'production') {
+      throw new Error('Production upload aborted.');
+    }
+  } finally {
+    rl.close();
+  }
+}
+
+function isProductionBaseUrl(baseUrl) {
+  return normalizeBaseUrl(baseUrl) === PRODUCTION_STRAPI_BASE_URL;
 }
 
 function parseArgv(argv) {
@@ -467,7 +502,7 @@ function getPaginationParams(style, page, pageSize) {
   };
 }
 
-async function uploadGroups({ client, rootFolderId, groups, knownFolders, createFolders, skipExisting, folderField }) {
+async function uploadGroups({ client, rootFolderId, rootFolderPath, groups, knownFolders, createFolders, skipExisting, folderField }) {
   const foldersByName = new Map(knownFolders.map((folder) => [normalizeKey(folder.name), folder]));
   const reportGroups = [];
   let uploaded = 0;
@@ -494,10 +529,11 @@ async function uploadGroups({ client, rootFolderId, groups, knownFolders, create
 
     const folderId = getEntityId(folder);
     const existingFilesBefore = await listFilesByFolder(client, folderId);
-    const existingNames = skipExisting ? getExistingFileNames(existingFilesBefore) : new Map();
+    const existingNames = skipExisting ? getExistingFileNames(client, existingFilesBefore) : new Map();
     const reportGroup = {
       officeName: group.officeName,
       folderId,
+      folderPath: buildMediaLibraryFolderPath(rootFolderPath, group.officeName),
       folderCreated,
       localImageCount: group.files.length,
       beforeAssetCount: existingFilesBefore.length,
@@ -508,10 +544,12 @@ async function uploadGroups({ client, rootFolderId, groups, knownFolders, create
       files: [],
     };
 
-    console.log(`\nUploading ${group.files.length} image(s) to ${group.officeName} (folder id ${folderId})`);
+    console.log(`\nUploading ${group.files.length} image(s) to ${reportGroup.folderPath} (folder id ${folderId})`);
     for (const file of group.files) {
-      const existingName = skipExisting ? findExistingFileName(existingNames, file) : null;
-      if (existingName) {
+      const existingFile = skipExisting ? findExistingFile(existingNames, file) : null;
+      if (existingFile) {
+        const existingName = existingFile.name;
+        const strapiUrl = existingFile.url;
         skipped += 1;
         reportGroup.skipped += 1;
         reportGroup.files.push({
@@ -519,23 +557,32 @@ async function uploadGroups({ client, rootFolderId, groups, knownFolders, create
           status: 'skipped_existing',
           reason: 'Same name already exists in this Strapi folder',
           existingMatch: existingName,
+          strapiAssetId: existingFile.id,
+          strapiAssetName: existingFile.assetName,
+          strapiUrl,
         });
-        console.log(`- skip existing ${file.filename} (matched ${existingName})`);
+        console.log(`- skip existing ${file.filename} in ${reportGroup.folderPath} (matched ${existingName}${existingFile.assetName ? `, asset name ${existingFile.assetName}` : ''}${strapiUrl ? `, ${strapiUrl}` : ''})`);
         continue;
       }
 
       try {
-        await uploadFile(client, file, folderId, folderField);
+        const uploadedFile = await uploadFile(client, file, folderId, folderField);
+        const strapiUrl = getStrapiFileUrl(client, uploadedFile);
+        const strapiAssetId = getEntityId(uploadedFile);
+        const strapiAssetName = getStrapiFileName(uploadedFile);
         uploaded += 1;
         reportGroup.uploaded += 1;
-        rememberUploadedFile(existingNames, file);
+        rememberUploadedFile(existingNames, file, { id: strapiAssetId, assetName: strapiAssetName, url: strapiUrl });
         reportGroup.files.push({
           filename: file.filename,
           status: 'uploaded',
           reason: '',
           existingMatch: '',
+          strapiAssetId,
+          strapiAssetName,
+          strapiUrl,
         });
-        console.log(`- uploaded ${file.filename}`);
+        console.log(`- uploaded ${file.filename} to ${reportGroup.folderPath}${strapiAssetName ? ` (asset name ${strapiAssetName})` : ''}`);
       } catch (error) {
         failed += 1;
         reportGroup.failed += 1;
@@ -575,11 +622,11 @@ async function uploadFile(client, file, folderId, folderField) {
   for (const placement of placements) {
     try {
       const form = await buildUploadForm(file, folderId, placement);
-      await requestJson(client, '/upload', {
+      const body = await requestJson(client, '/upload', {
         method: 'POST',
         body: form,
       });
-      return;
+      return unwrapUploadFile(body);
     } catch (error) {
       lastError = error;
       if (!(error instanceof HttpError) || ![400, 422].includes(error.status) || folderField !== 'auto') {
@@ -595,7 +642,7 @@ async function buildUploadForm(file, folderId, placement) {
   const buffer = await fs.readFile(file.filePath);
   const form = new FormData();
   const fileInfo = {
-    name: file.stem,
+    name: file.filename,
     alternativeText: file.officeName,
     caption: file.officeName,
   };
@@ -698,6 +745,44 @@ function unwrapSingle(body) {
   return normalizeEntity(body);
 }
 
+function unwrapUploadFile(body) {
+  const files = unwrapList(body);
+  if (files.length > 0) {
+    return files[0];
+  }
+
+  return unwrapSingle(body);
+}
+
+function getStrapiFileUrl(client, file) {
+  const rawUrl = file?.url;
+  if (!rawUrl) {
+    return '';
+  }
+
+  return new URL(rawUrl, `${client.baseUrl}/`).toString();
+}
+
+function getStrapiFileName(file) {
+  if (!file || typeof file !== 'object') {
+    return '';
+  }
+
+  if (file.name) {
+    return String(file.name);
+  }
+
+  if (file.filename) {
+    return String(file.filename);
+  }
+
+  if (file.url) {
+    return path.posix.basename(String(file.url));
+  }
+
+  return '';
+}
+
 function normalizeEntity(entity) {
   if (!entity || typeof entity !== 'object') {
     return entity;
@@ -723,41 +808,70 @@ function idValue(value) {
   return /^\d+$/.test(text) ? Number(text) : value;
 }
 
-function getExistingFileNames(files) {
+function getExistingFileNames(client, files) {
   const names = new Map();
 
   for (const file of files) {
     const name = file.name ? String(file.name) : '';
     const ext = file.ext ? String(file.ext) : '';
     const urlName = file.url ? path.posix.basename(String(file.url)) : '';
+    const fileInfo = {
+      name,
+      id: getEntityId(file),
+      assetName: getStrapiFileName(file),
+      url: getStrapiFileUrl(client, file),
+    };
 
-    addExistingName(names, name);
-    addExistingName(names, name && ext ? `${name}${ext}` : '');
-    addExistingName(names, file.filename ? String(file.filename) : '');
-    addExistingName(names, urlName);
+    addExistingName(names, name, fileInfo);
+    addExistingName(names, name && ext ? `${name}${ext}` : '', { ...fileInfo, name: `${name}${ext}` });
+    addExistingName(names, file.filename ? String(file.filename) : '', { ...fileInfo, name: String(file.filename || name) });
+    addExistingName(names, urlName, { ...fileInfo, name: urlName });
   }
 
   return names;
 }
 
-function addExistingName(names, value) {
+function addExistingName(names, value, fileInfo) {
   if (!value) {
     return;
   }
 
-  names.set(normalizeKey(value), value);
+  names.set(normalizeKey(value), fileInfo || { name: value, url: '' });
 }
 
-function findExistingFileName(existingNames, file) {
+function findExistingFile(existingNames, file) {
   return existingNames.get(normalizeKey(file.filename)) || existingNames.get(normalizeKey(file.stem)) || null;
 }
 
-function rememberUploadedFile(existingNames, file) {
-  addExistingName(existingNames, file.filename);
-  addExistingName(existingNames, file.stem);
+function rememberUploadedFile(existingNames, file, strapiFile = {}) {
+  addExistingName(existingNames, file.filename, { name: file.filename, ...strapiFile });
+  addExistingName(existingNames, file.stem, { name: file.stem, ...strapiFile });
 }
 
-function createPlannedReportGroups(groups, knownFolders) {
+function getReportRootFolderPath(options, rootFolderId) {
+  if (options.rootFolderPath) {
+    return options.rootFolderPath;
+  }
+
+  if (options.rootFolderName) {
+    return `Media Library/${options.rootFolderName}`;
+  }
+
+  if (rootFolderId) {
+    return `Media Library/root folder ${rootFolderId}`;
+  }
+
+  return 'Media Library';
+}
+
+function buildMediaLibraryFolderPath(rootFolderPath, officeName) {
+  return [rootFolderPath, officeName]
+    .map((part) => String(part || '').replace(/^\/+|\/+$/g, ''))
+    .filter(Boolean)
+    .join('/');
+}
+
+function createPlannedReportGroups(groups, knownFolders, rootFolderPath) {
   const foldersByName = new Map(knownFolders.map((folder) => [normalizeKey(folder.name), folder]));
 
   return groups.map((group) => {
@@ -766,6 +880,7 @@ function createPlannedReportGroups(groups, knownFolders) {
     return {
       officeName: group.officeName,
       folderId: folder ? getEntityId(folder) : '',
+      folderPath: buildMediaLibraryFolderPath(rootFolderPath, group.officeName),
       folderCreated: false,
       localImageCount: group.files.length,
       beforeAssetCount: null,
@@ -796,6 +911,40 @@ async function writeUploadReport({ options, mode, startedAt, finishedAt, rootFol
   console.log(`\nReport written:`);
   console.log(`- ${markdownPath}`);
   console.log(`- ${csvPath}`);
+
+  if (mode === 'upload' && options.existingFilenamesPath) {
+    await updateExistingFilenamesFromGroups(options.existingFilenamesPath, groups);
+  }
+}
+
+async function updateExistingFilenamesFromGroups(existingFilenamesPath, groups) {
+  const done = new Set(['uploaded', 'skipped_existing']);
+  const names = groups
+    .flatMap((group) => group.files)
+    .filter((file) => done.has(file.status))
+    .map((file) => file.filename)
+    .filter(Boolean);
+
+  const existing = await readExistingFilenameRules(existingFilenamesPath);
+  const merged = [...new Set([...existing, ...names])].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+
+  await fs.mkdir(path.dirname(existingFilenamesPath), { recursive: true });
+  await fs.writeFile(existingFilenamesPath, `${merged.join('\n')}${merged.length ? '\n' : ''}`, 'utf8');
+
+  console.log(`Updated ${existingFilenamesPath}: added ${names.length} uploaded/existing filename(s).`);
+}
+
+async function readExistingFilenameRules(existingFilenamesPath) {
+  try {
+    const text = await fs.readFile(existingFilenamesPath, 'utf8');
+    return text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return [];
+    }
+
+    throw error;
+  }
 }
 
 function buildMarkdownReport({ options, mode, startedAt, finishedAt, rootFolderId, groups }) {
@@ -826,11 +975,11 @@ function buildMarkdownReport({ options, mode, startedAt, finishedAt, rootFolderI
   lines.push('');
   lines.push('## Office Summary');
   lines.push('');
-  lines.push('| Office | Folder ID | Before | Local | Uploaded | Skipped | Failed | After |');
-  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
+  lines.push('| Office | Media Library Folder | Folder ID | Before | Local | Uploaded | Skipped | Failed | After |');
+  lines.push('| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
 
   for (const group of groups) {
-    lines.push(`| ${escapeMarkdownCell(group.officeName)} | ${emptyIfNull(group.folderId)} | ${emptyIfNull(group.beforeAssetCount)} | ${group.localImageCount} | ${group.uploaded} | ${group.skipped} | ${group.failed} | ${emptyIfNull(group.afterAssetCount)} |`);
+    lines.push(`| ${escapeMarkdownCell(group.officeName)} | ${escapeMarkdownCell(group.folderPath)} | ${emptyIfNull(group.folderId)} | ${emptyIfNull(group.beforeAssetCount)} | ${group.localImageCount} | ${group.uploaded} | ${group.skipped} | ${group.failed} | ${emptyIfNull(group.afterAssetCount)} |`);
   }
 
   lines.push('');
@@ -840,12 +989,12 @@ function buildMarkdownReport({ options, mode, startedAt, finishedAt, rootFolderI
     lines.push('');
     lines.push(`### ${group.officeName}`);
     lines.push('');
-    lines.push('| Status | File | Notes |');
-    lines.push('| --- | --- | --- |');
+    lines.push('| Status | File | Media Library Folder | Strapi Asset ID | Strapi Asset Name | Strapi URL | Notes |');
+    lines.push('| --- | --- | --- | ---: | --- | --- | --- |');
 
     for (const file of group.files) {
       const notes = [file.reason, file.existingMatch ? `matched: ${file.existingMatch}` : ''].filter(Boolean).join('; ');
-      lines.push(`| ${file.status} | ${escapeMarkdownCell(file.filename)} | ${escapeMarkdownCell(notes)} |`);
+      lines.push(`| ${file.status} | ${escapeMarkdownCell(file.filename)} | ${escapeMarkdownCell(group.folderPath)} | ${escapeMarkdownCell(file.strapiAssetId)} | ${escapeMarkdownCell(file.strapiAssetName)} | ${escapeMarkdownCell(file.strapiUrl)} | ${escapeMarkdownCell(notes)} |`);
     }
   }
 
@@ -857,12 +1006,16 @@ function buildCsvReport({ groups }) {
   const rows = [
     [
       'office_name',
+      'media_library_folder',
       'folder_id',
       'before_asset_count',
       'after_asset_count',
       'local_image_count',
       'filename',
       'status',
+      'strapi_asset_id',
+      'strapi_asset_name',
+      'strapi_url',
       'reason',
       'existing_match',
     ],
@@ -872,12 +1025,16 @@ function buildCsvReport({ groups }) {
     for (const file of group.files) {
       rows.push([
         group.officeName,
+        group.folderPath,
         group.folderId,
         emptyIfNull(group.beforeAssetCount),
         emptyIfNull(group.afterAssetCount),
         group.localImageCount,
         file.filename,
         file.status,
+        file.strapiAssetId,
+        file.strapiAssetName,
+        file.strapiUrl,
         file.reason,
         file.existingMatch,
       ]);
@@ -983,18 +1140,22 @@ Common options:
   --list-offices               Print resolved offices and exit.
   --dry-run                    Print what would happen. This is the default.
   --confirm                    Actually create folders and upload files.
+  --confirm-production         Allow upload when STRAPI_BASE_URL is ${PRODUCTION_STRAPI_BASE_URL}.
   --no-create-folders          Fail if a target office folder does not exist.
   --no-skip-existing           Upload even when same Strapi name already exists.
   --folder-field <mode>        auto, fileInfo, top-level, or both. Defaults to auto.
   --report-dir <path>          Report output directory. Defaults to ./strapi-upload-reports.
+  --existing-filenames <path>  Write uploaded/skipped filenames to this rules file.
   --no-report                  Do not write Markdown/CSV report files.
 
 Environment variables:
   STRAPI_BASE_URL=${DEFAULT_STRAPI_BASE_URL}
+  STRAPI_CONFIRM_PRODUCTION=1
   STRAPI_ADMIN_JWT=<admin-jwt-from-browser-or-admin-api>
   STRAPI_ROOT_FOLDER_PATH="${DEFAULT_ROOT_FOLDER_PATH}"
   STRAPI_ROOT_FOLDER_ID=<optional-root-folder-id>
   STRAPI_REPORT_DIR=./strapi-upload-reports
+  STRAPI_EXISTING_FILENAMES=rules/strapi-office-venue-existing-filenames.txt
 
 Example one-office upload:
   STRAPI_ADMIN_JWT=<token> node upload-strapi-images.mjs --office zuria-tower --confirm
