@@ -577,6 +577,10 @@ function normalizeBaseUrl(baseUrl) {
   return String(baseUrl || '').trim().replace(/\/+$/, '').replace(/\/admin$/, '');
 }
 
+function normalizeKey(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
 function escapeMarkdownCell(value) {
   return String(value ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
 }
