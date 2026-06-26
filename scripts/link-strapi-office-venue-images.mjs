@@ -19,9 +19,6 @@ async function main() {
     return;
   }
 
-  if (!options.reportPath) {
-    throw new Error('--report is required');
-  }
   if (!options.token) {
     throw new Error('STRAPI_ADMIN_JWT or --token is required');
   }
@@ -30,6 +27,10 @@ async function main() {
   }
 
   await confirmProductionAccess(options);
+
+  if (!options.reportPath) {
+    options.reportPath = await findLatestReport(options.reportDir);
+  }
 
   const csvPath = getCsvReportPath(options.reportPath);
   const markdownPath = getMarkdownReportPath(options.reportPath);
@@ -119,6 +120,7 @@ function parseOptions(argv) {
   return {
     help: hasFlag(parsed, 'help') || hasFlag(parsed, 'h'),
     reportPath,
+    reportDir: path.resolve(getValue(parsed, 'report-dir') || process.env.STRAPI_REPORT_DIR || 'logs/strapi-upload-reports'),
     baseUrl,
     token: getValue(parsed, 'token') || process.env.STRAPI_ADMIN_JWT || '',
     officeVenueId: getValue(parsed, 'office-venue-id') || process.env.STRAPI_OFFICE_VENUE_ID || '',
@@ -527,6 +529,31 @@ function getMarkdownReportPath(reportPath) {
   return `${reportPath}.md`;
 }
 
+async function findLatestReport(reportDir) {
+  let entries;
+  try {
+    entries = await fs.readdir(reportDir, { withFileTypes: true });
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`Report directory not found: ${reportDir}`);
+    }
+    throw error;
+  }
+
+  const reports = entries
+    .filter((entry) => entry.isFile() && /^strapi-upload-report-.*\.csv$/.test(entry.name))
+    .map((entry) => path.join(reportDir, entry.name))
+    .sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+
+  const latest = reports.at(-1);
+  if (!latest) {
+    throw new Error(`No strapi-upload-report-*.csv files found in ${reportDir}`);
+  }
+
+  console.log(`Using latest upload report: ${latest}`);
+  return latest;
+}
+
 function normalizeBaseUrl(baseUrl) {
   return String(baseUrl || '').trim().replace(/\/+$/, '').replace(/\/admin$/, '');
 }
@@ -537,13 +564,14 @@ function escapeMarkdownCell(value) {
 
 function printHelp() {
   console.log(`Usage:
-  node link-strapi-office-venue-images.mjs --report <csv-or-md> [options]
+  node link-strapi-office-venue-images.mjs [options]
 
 Required:
-  --report <path>              Strapi upload report CSV or Markdown path.
   --confirm                    Actually update Strapi. Use --dry-run to preview.
 
 Common options:
+  --report <path>              Strapi upload report CSV or Markdown path. Defaults to latest CSV in report dir.
+  --report-dir <path>          Report directory. Defaults to logs/strapi-upload-reports.
   --base-url <url>             Strapi base URL. Defaults to ${DEFAULT_STRAPI_BASE_URL}.
   --token <jwt>                Strapi admin JWT. Prefer STRAPI_ADMIN_JWT env var.
   --match-field <field>        Office Venue field matched to report office_name. Defaults to slug.
@@ -558,7 +586,8 @@ Common options:
 Environment variables:
   STRAPI_BASE_URL=${DEFAULT_STRAPI_BASE_URL}
   STRAPI_ADMIN_JWT=<admin-jwt-from-browser-or-admin-api>
-  STRAPI_UPLOAD_REPORT=logs/strapi-upload-reports/strapi-upload-report-....csv
+  STRAPI_REPORT_DIR=logs/strapi-upload-reports
+  STRAPI_UPLOAD_REPORT=logs/strapi-upload-reports/strapi-upload-report-....csv # optional override
   STRAPI_OFFICE_VENUE_MATCH_FIELD=slug
   STRAPI_OFFICE_VENUE_ID=99 # optional override
   STRAPI_CONFIRM_PRODUCTION=1

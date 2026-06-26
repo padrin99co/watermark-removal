@@ -71,6 +71,7 @@ help:
 	@echo "  export STRAPI_ADMIN_JWT=<develop-admin-jwt>"
 	@echo "  make upload-strapi-images-dry-run"
 	@echo "  make upload-strapi-images"
+	@echo "  make link-strapi-office-venue-images  # uses latest report in $(STRAPI_REPORT_DIR)"
 	@echo "  make upload-strapi-images STRAPI_EXTRA_ARGS=--confirm-production  # required for production"
 	@echo ""
 	@echo "Variables:"
@@ -203,11 +204,12 @@ upload-strapi-images-dry-run:
 		--dry-run
 
 link-strapi-office-venue-images:
-	@test -n "$(STRAPI_UPLOAD_REPORT)" || (echo "error: STRAPI_UPLOAD_REPORT is required" && exit 2)
-	@test -f "$(STRAPI_UPLOAD_REPORT)" || (echo "error: report not found: $(STRAPI_UPLOAD_REPORT)" && exit 2)
+	@test -d "$(STRAPI_REPORT_DIR)" || (echo "error: report folder not found: $(STRAPI_REPORT_DIR)" && exit 2)
+	@if [ -n "$(STRAPI_UPLOAD_REPORT)" ]; then test -f "$(STRAPI_UPLOAD_REPORT)" || (echo "error: report not found: $(STRAPI_UPLOAD_REPORT)" && exit 2); fi
 	@test -n "$$STRAPI_ADMIN_JWT" || (echo "error: STRAPI_ADMIN_JWT is required" && exit 2)
 	node "$(STRAPI_LINK_IMAGES_SCRIPT)" \
-		--report "$(STRAPI_UPLOAD_REPORT)" \
+		--report-dir "$(STRAPI_REPORT_DIR)" \
+		$(if $(STRAPI_UPLOAD_REPORT),--report "$(STRAPI_UPLOAD_REPORT)",) \
 		--match-field "$(STRAPI_OFFICE_VENUE_MATCH_FIELD)" \
 		$(if $(STRAPI_OFFICE_VENUE_ID),--office-venue-id "$(STRAPI_OFFICE_VENUE_ID)",) \
 		$(STRAPI_EXTRA_ARGS) \
