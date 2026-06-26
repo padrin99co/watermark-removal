@@ -31,6 +31,7 @@ FORCE ?= 0
 REASON ?= Needs retry
 EXCLUDE_FILENAMES ?= rules/strapi-office-venue-existing-filenames.txt
 STRAPI_UPLOAD_SCRIPT ?= scripts/upload-strapi-images.mjs
+STRAPI_LINK_IMAGES_SCRIPT ?= scripts/link-strapi-office-venue-images.mjs
 STRAPI_BASE_URL ?= https://cms.rumah123.com
 STRAPI_IMAGE_DIR ?= $(CLEAN_DIR)
 STRAPI_REPORT_DIR ?= $(LOG_DIR)/strapi-upload-reports
@@ -38,11 +39,13 @@ STRAPI_EXISTING_FILENAMES ?= rules/strapi-office-venue-existing-filenames.txt
 STRAPI_ROOT_FOLDER_PATH ?= Media Library/Office Venue
 STRAPI_OFFICE ?=
 STRAPI_FOLDER_FIELD ?= auto
+STRAPI_UPLOAD_REPORT ?=
+STRAPI_OFFICE_VENUE_ID ?=
 STRAPI_EXTRA_ARGS ?=
 
 export STRAPI_BASE_URL STRAPI_ADMIN_JWT STRAPI_ROOT_FOLDER_ID STRAPI_ROOT_FOLDER_NAME STRAPI_ROOT_FOLDER_PATH STRAPI_REPORT_DIR STRAPI_PAGE_SIZE
 
-.PHONY: help install mask remove remove-one remove-api batch retry-failed continue-progress mark-failed process status upload-strapi-images upload-strapi-images-dry-run update-strapi-existing-filenames test clean open
+.PHONY: help install mask remove remove-one remove-api batch retry-failed continue-progress mark-failed process status upload-strapi-images upload-strapi-images-dry-run link-strapi-office-venue-images update-strapi-existing-filenames test clean open
 
 help:
 	@echo "Targets:"
@@ -57,6 +60,7 @@ help:
 	@echo "  make process RECT=x,y,w,h Create mask, remove watermark, and open result"
 	@echo "  make upload-strapi-images  Upload $(STRAPI_IMAGE_DIR) to Strapi and update existing filename rules"
 	@echo "  make upload-strapi-images-dry-run  Preview Strapi upload from $(STRAPI_IMAGE_DIR)"
+	@echo "  make link-strapi-office-venue-images  Link uploaded report assets to Office Venue image field"
 	@echo "  make open                 Open cleaned output"
 	@echo "  make status               Show image processing status summary"
 	@echo "  make test                 Run tests"
@@ -86,6 +90,8 @@ help:
 	@echo "  STRAPI_EXISTING_FILENAMES=$(STRAPI_EXISTING_FILENAMES)"
 	@echo "  STRAPI_ROOT_FOLDER_PATH=$(STRAPI_ROOT_FOLDER_PATH)"
 	@echo "  STRAPI_OFFICE=$(STRAPI_OFFICE)"
+	@echo "  STRAPI_UPLOAD_REPORT=$(STRAPI_UPLOAD_REPORT)"
+	@echo "  STRAPI_OFFICE_VENUE_ID=$(STRAPI_OFFICE_VENUE_ID)"
 
 install:
 	cd $(APP_DIR) && $(PYTHON) -m pip install --user -e .
@@ -193,6 +199,17 @@ upload-strapi-images-dry-run:
 		$(if $(STRAPI_OFFICE),--office "$(STRAPI_OFFICE)",) \
 		$(STRAPI_EXTRA_ARGS) \
 		--dry-run
+
+link-strapi-office-venue-images:
+	@test -n "$(STRAPI_UPLOAD_REPORT)" || (echo "error: STRAPI_UPLOAD_REPORT is required" && exit 2)
+	@test -f "$(STRAPI_UPLOAD_REPORT)" || (echo "error: report not found: $(STRAPI_UPLOAD_REPORT)" && exit 2)
+	@test -n "$(STRAPI_OFFICE_VENUE_ID)" || (echo "error: STRAPI_OFFICE_VENUE_ID is required" && exit 2)
+	@test -n "$$STRAPI_ADMIN_JWT" || (echo "error: STRAPI_ADMIN_JWT is required" && exit 2)
+	node "$(STRAPI_LINK_IMAGES_SCRIPT)" \
+		--report "$(STRAPI_UPLOAD_REPORT)" \
+		--office-venue-id "$(STRAPI_OFFICE_VENUE_ID)" \
+		$(STRAPI_EXTRA_ARGS) \
+		--confirm
 
 update-strapi-existing-filenames:
 	@test -n "$(STRAPI_UPLOAD_REPORT)" || (echo "error: STRAPI_UPLOAD_REPORT is required" && exit 2)
