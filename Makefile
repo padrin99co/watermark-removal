@@ -72,6 +72,7 @@ help:
 	@echo "  make upload-strapi-images-dry-run"
 	@echo "  make upload-strapi-images"
 	@echo "  make link-strapi-office-venue-images  # uses latest report in $(STRAPI_REPORT_DIR)"
+	@echo "  make link-strapi-office-venue-images STRAPI_OFFICE=graha-cimb-niaga"
 	@echo "  make upload-strapi-images STRAPI_EXTRA_ARGS=--confirm-production  # required for production"
 	@echo ""
 	@echo "Variables:"
@@ -210,6 +211,7 @@ link-strapi-office-venue-images:
 	node "$(STRAPI_LINK_IMAGES_SCRIPT)" \
 		--report-dir "$(STRAPI_REPORT_DIR)" \
 		$(if $(STRAPI_UPLOAD_REPORT),--report "$(STRAPI_UPLOAD_REPORT)",) \
+		$(if $(STRAPI_OFFICE),--office "$(STRAPI_OFFICE)",) \
 		--match-field "$(STRAPI_OFFICE_VENUE_MATCH_FIELD)" \
 		$(if $(STRAPI_OFFICE_VENUE_ID),--office-venue-id "$(STRAPI_OFFICE_VENUE_ID)",) \
 		$(STRAPI_EXTRA_ARGS) \

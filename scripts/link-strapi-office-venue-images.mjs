@@ -35,10 +35,10 @@ async function main() {
   const csvPath = getCsvReportPath(options.reportPath);
   const markdownPath = getMarkdownReportPath(options.reportPath);
   const rows = parseCsv(await fs.readFile(csvPath, 'utf8'));
-  const assets = getSuccessfulAssets(rows);
+  const assets = filterAssetsByOffice(getSuccessfulAssets(rows), options.officeFilters);
 
   if (assets.length === 0) {
-    throw new Error(`No uploaded/skipped Strapi asset IDs found in ${csvPath}`);
+    throw new Error(`No uploaded/skipped Strapi asset IDs found in ${csvPath}${options.officeFilters.length ? ` for office filter(s): ${options.officeFilters.join(', ')}` : ''}`);
   }
 
   const client = createClient(options);
@@ -116,6 +116,11 @@ function parseOptions(argv) {
   const parsed = parseArgv(argv);
   const reportPath = getValue(parsed, 'report') || process.env.STRAPI_UPLOAD_REPORT || '';
   const baseUrl = normalizeBaseUrl(getValue(parsed, 'base-url') || process.env.STRAPI_BASE_URL || DEFAULT_STRAPI_BASE_URL);
+  const officeFilters = getValues(parsed, 'office')
+    .concat(process.env.STRAPI_OFFICE ? [process.env.STRAPI_OFFICE] : [])
+    .flatMap((value) => String(value).split(','))
+    .map((value) => value.trim())
+    .filter(Boolean);
 
   return {
     help: hasFlag(parsed, 'help') || hasFlag(parsed, 'h'),
@@ -124,6 +129,7 @@ function parseOptions(argv) {
     baseUrl,
     token: getValue(parsed, 'token') || process.env.STRAPI_ADMIN_JWT || '',
     officeVenueId: getValue(parsed, 'office-venue-id') || process.env.STRAPI_OFFICE_VENUE_ID || '',
+    officeFilters,
     matchField: getValue(parsed, 'match-field') || process.env.STRAPI_OFFICE_VENUE_MATCH_FIELD || 'slug',
     contentField: getValue(parsed, 'content-field') || process.env.STRAPI_OFFICE_VENUE_IMAGE_FIELD || DEFAULT_CONTENT_FIELD,
     source: getValue(parsed, 'source') || process.env.STRAPI_OFFICE_VENUE_IMAGE_SOURCE || DEFAULT_COMPONENT_SOURCE,
@@ -175,6 +181,10 @@ function addValue(values, key, value) {
 function getValue(parsed, key) {
   const values = parsed.values.get(key);
   return values && values.length > 0 ? values[values.length - 1] : undefined;
+}
+
+function getValues(parsed, key) {
+  return parsed.values.get(key) || [];
 }
 
 function hasFlag(parsed, key) {
@@ -416,6 +426,15 @@ function getSuccessfulAssets(rows) {
   return [...assetsById.values()];
 }
 
+function filterAssetsByOffice(assets, officeFilters) {
+  if (officeFilters.length === 0) {
+    return assets;
+  }
+
+  const filters = new Set(officeFilters.map(normalizeKey));
+  return assets.filter((asset) => filters.has(normalizeKey(asset.officeName)));
+}
+
 function parseCsv(text) {
   const parsedRows = [];
   let row = [];
@@ -574,6 +593,7 @@ Common options:
   --report-dir <path>          Report directory. Defaults to logs/strapi-upload-reports.
   --base-url <url>             Strapi base URL. Defaults to ${DEFAULT_STRAPI_BASE_URL}.
   --token <jwt>                Strapi admin JWT. Prefer STRAPI_ADMIN_JWT env var.
+  --office <slug>              Link only one office slug, e.g. graha-cimb-niaga.
   --match-field <field>        Office Venue field matched to report office_name. Defaults to slug.
   --office-venue-id <id>       Optional override: link all report assets to one Office Venue id.
   --content-field <field>      Office Venue component field. Defaults to ${DEFAULT_CONTENT_FIELD}.
@@ -588,6 +608,7 @@ Environment variables:
   STRAPI_ADMIN_JWT=<admin-jwt-from-browser-or-admin-api>
   STRAPI_REPORT_DIR=logs/strapi-upload-reports
   STRAPI_UPLOAD_REPORT=logs/strapi-upload-reports/strapi-upload-report-....csv # optional override
+  STRAPI_OFFICE=graha-cimb-niaga
   STRAPI_OFFICE_VENUE_MATCH_FIELD=slug
   STRAPI_OFFICE_VENUE_ID=99 # optional override
   STRAPI_CONFIRM_PRODUCTION=1
