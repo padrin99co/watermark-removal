@@ -80,7 +80,7 @@ async function main() {
 async function linkVenueGroup({ client, options, venueGroup }) {
   const beforeEntry = venueGroup.entry;
   const existingComponents = normalizeComponentList(getEntryField(beforeEntry, options.contentField));
-  const existingAssetIds = new Set(existingComponents.flatMap((component) => getMediaIds(component.imageUrl)));
+  const existingAssetIds = new Set(existingComponents.flatMap(getComponentImageUrlIds));
   const missingAssets = venueGroup.assets.filter((asset) => !existingAssetIds.has(asset.id));
   const payloadComponents = [
     ...existingComponents.map(normalizeExistingImageComponent),
@@ -104,7 +104,7 @@ async function linkVenueGroup({ client, options, venueGroup }) {
   }
 
   const afterComponents = normalizeComponentList(getEntryField(afterEntry, options.contentField));
-  const afterAssetIds = new Set(afterComponents.flatMap((component) => getMediaIds(component.imageUrl)));
+  const afterAssetIds = new Set(afterComponents.flatMap(getComponentImageUrlIds));
   const linkedAssets = venueGroup.assets.filter((asset) => afterAssetIds.has(asset.id));
   const missingAfterUpdate = venueGroup.assets.filter((asset) => !afterAssetIds.has(asset.id));
 
@@ -357,12 +357,20 @@ function normalizeComponentList(value) {
 }
 
 function normalizeExistingImageComponent(component) {
-  return {
+  const normalized = {
     ...(component.id ? { id: component.id } : {}),
-    imageUrl: getMediaIds(component.imageUrl),
     source: component.source || DEFAULT_COMPONENT_SOURCE,
     type: component.type || DEFAULT_COMPONENT_TYPE,
     subType: component.subType || component.sub_type || DEFAULT_COMPONENT_SUB_TYPE,
+  };
+
+  if (component.imageUrl === null || component.imageUrl === undefined) {
+    return { ...normalized, imageUrl: component.imageUrl ?? null };
+  }
+
+  return {
+    ...normalized,
+    imageUrl: getMediaIds(component.imageUrl),
   };
 }
 
@@ -393,6 +401,10 @@ function getMediaIds(value) {
   }
   const id = getEntityId(value);
   return id ? [id] : [];
+}
+
+function getComponentImageUrlIds(component) {
+  return getMediaIds(component?.imageUrl);
 }
 
 function getEntityId(value) {
