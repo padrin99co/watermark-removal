@@ -6,7 +6,12 @@ __pycache__/
 .env.*
 !.env.example
 .codex-work/
+.codex-home*/
+.thumb*
+.mask*
+*tmp*
 c/
+tmp/
 clean-images/*
 !clean-images/.gitkeep
 raw-images/*
