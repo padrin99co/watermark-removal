@@ -1,15 +1,23 @@
 __pycache__/
 .pytest_cache/
+.preview/*
 .venv/
 *.py[cod]
 .env
 .env.*
 !.env.example
-.codex-work/
-.codex-home*/
+.codex-*/
 .thumb*
 .mask*
 *tmp*
+*wm_*
+target_*
+watermark_*
+test*
+pair*
+clean*
+citylofts_*
+floorplan_*
 c/
 tmp/
 clean-images/*
@@ -18,6 +26,7 @@ raw-images/*
 !raw-images/.gitkeep
 logs/*
 !logs/.gitkeep
+!logs/status.tsv
 !logs/strapi-upload-reports/
 !logs/strapi-upload-reports/**
 
