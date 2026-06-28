@@ -27,6 +27,7 @@ raw-images/*
 logs/*
 !logs/.gitkeep
 !logs/status.tsv
+!logs/failed-watermark-*
 !logs/strapi-upload-reports/
 !logs/strapi-upload-reports/**
 
