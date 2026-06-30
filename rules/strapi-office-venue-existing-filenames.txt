@@ -59,6 +59,7 @@ _tmp_wm_median15.jpg
 01_21_the-city-center-batavia-city-the-city-center-tower-1_20170217114122_65829.jpg
 01_21_the-city-center-batavia-city-the-city-center-tower-1_20170222064022_40037.jpeg
 01_22_city-lofts-sudirman-city-lofts-sudirman_20170331112111_93221_crop.jpg
+01_22_city-lofts-sudirman-city-lofts-sudirman_20170331112111_93221.jpg
 01_22_citylofts-sudirman-citylofts-sudirman_20160914043815_50265.jpg
 01_22_citylofts-sudirman-citylofts-sudirman_20170314084716_34943.jpg
 01_23_menara-batavia-menara-batavia_20160914044209_37101.jpg
@@ -111,6 +112,7 @@ _tmp_wm_median15.jpg
 01_41_graha-irama-graha-irama_20160914043957_94600.JPG
 01_41_graha-irama-graha-irama_20180416085557_58476.jpg
 01_42_lippo-kuningan-ex-life-tower-lippo-kuningan_20160914044127_16894.JPG
+01_42_lippo-kuningan-ex-life-tower-lippo-kuningan_20170222071936_72813.jpg
 01_42_lippo-kuningan-ex-life-tower-lippo-kuningan_20170331101935_36014.jpg
 01_44_md-place-md-place-tower-1_20160914071126_31534.jpg
 01_44_md-place-md-place-tower-1_20170214040733_77163.jpg
@@ -189,6 +191,7 @@ _tmp_wm_median15.jpg
 01_73_menara-prima-menara-prima-ii_20160914072030_47432.jpeg
 01_73_menara-prima-menara-prima-ii_20170411094016_91880.jpg
 01_74_menara-rajawali-menara-rajawali_20160914044303_77705.JPG
+01_74_menara-rajawali-menara-rajawali_20170331115639_94926.jpg
 01_74_menara-rajawali-menara-rajawali_20180201101712_45133.jpg
 01_75_noble-house-noble-house_20160914044332_79418.JPG
 01_75_noble-house-noble-house_20170310071855_45056.jpg
@@ -262,6 +265,7 @@ _tmp_wm_median15.jpg
 01_104_intiland-tower-intiland-tower_20180417040854_61182.jpg
 01_105_landmark-tower-landmark-tower-1_20170316043017_92754.jpg
 01_105_landmark-tower-landmark-tower-1_20180416094115_86436.jpg
+01_106_landmark-tower-landmark-tower-2_20170316043039_69067.jpg
 01_106_landmark-tower-landmark-tower-2_20180801073329_32310.jpg
 01_107_mayapada-tower-mayapada-tower-1_20170222072337_26021.jpg
 01_107_mayapada-tower-mayapada-tower-1_20171212080157_78738.jpg
@@ -315,6 +319,7 @@ _tmp_wm_median15.jpg
 01_126_senayan-square-sentral-senayan-2_20170310045045_48940.jpeg
 01_126_senayan-square-sentral-senayan-2_20170331110026_29418.jpeg
 01_127_senayan-square-sentral-senayan-3_20160914044544_15186.jpg
+01_127_senayan-square-sentral-senayan-3_20170310045123_57745.jpg
 01_127_senayan-square-sentral-senayan-3_20170331110102_68946.jpg
 01_128_sequis-center-sequis-center_20160914044549_14230.jpeg
 01_128_sequis-center-sequis-center_20170222074326_84210.jpg
@@ -389,6 +394,7 @@ _tmp_wm_median15.jpg
 01_158_the-city-tower-the-city-tower_20170222073031_76563.jpeg
 01_159_the-plaza-the-plaza_20160914044724_97546.jpg
 01_159_the-plaza-the-plaza_20170220030134_87422.jpg
+01_159_the-plaza-the-plaza_20170316044331_62639.jpg
 01_161_wisma-mandiri-ex-plaza-bumidaya-wisma-mandiri_20160914044816_91632.jpeg
 01_161_wisma-mandiri-ex-plaza-bumidaya-wisma-mandiri_20180411040655_64672.jpeg
 01_162_wisma-nusantara-wisma-nusantara_20160914044824_58295.jpeg
@@ -396,6 +402,7 @@ _tmp_wm_median15.jpg
 01_162_wisma-nusantara-wisma-nusantara_20180104043224_93141.jpeg
 01_164_blue-green-integrated-boutique-office-blue-green-office-tower_20160914095521_20321.jpg
 01_164_blue-green-integrated-boutique-office-blue-green-office-tower_20181015023011_27952.jpg
+01_164_blue-green-integrated-boutique-office-blue-green-office-tower_20181015045451_81655.jpg
 01_165_gallery-west-gallery-west_20170222073357_87204.jpg
 01_165_gallery-west-gallery-west_20171024044014_78495.jpg
 01_165_gallery-west-gallery-west_20171212071654_37394.jpg
@@ -405,6 +412,7 @@ _tmp_wm_median15.jpg
 01_167_sastra-graha-sastra-graha_20160914044535_48519.JPG
 01_167_sastra-graha-sastra-graha_20180913021948_79109.jpg
 01_168_the-vida-the-vida_20160914044736_11140.JPG
+01_168_the-vida-the-vida_20170222074807_22360.jpg
 01_168_the-vida-the-vida_20170331110147_88953.jpg
 01_169_puri-indah-financial-tower-puri-indah-financial-tower_20160914044513_31773.JPG
 01_169_puri-indah-financial-tower-puri-indah-financial-tower_20170309102534_73852.jpg
@@ -515,6 +523,7 @@ _tmp_wm_median15.jpg
 01_215_manhattan-square-manhattan-square-tower-1_20160914044139_70087.JPG
 01_215_manhattan-square-manhattan-square-tower-1_20170320111511_19111.jpeg
 01_216_menara-165-menara-165_20160914044149_48448.jpg
+01_216_menara-165-menara-165_20170309101151_75681.jpg
 01_216_menara-165-menara-165_20180502062102_54425.jpg
 01_217_menara-citibank-pondok-indah-menara-citibank-pondok-indah_20170125085017_49275.jpg
 01_217_menara-citibank-pondok-indah-menara-citibank-pondok-indah_20180105102118_79071.jpg
@@ -606,6 +615,7 @@ _tmp_wm_median15.jpg
 01_256_one-wolter-place-one-wolter-place_20170214042725_76656.jpg
 01_256_one-wolter-place-one-wolter-place_20170316041850_48051.jpg
 01_257_menara-sentraya-menara-sentraya_20160914044306_19209.JPG
+01_257_menara-sentraya-menara-sentraya_20170310065613_99967.jpg
 01_257_menara-sentraya-menara-sentraya_20180522063129_20086.jpg
 01_258_haery-building-haery-building_20160914044035_71149.JPG
 01_258_haery-building-haery-building_20170331112221_29293.jpg
@@ -617,6 +627,7 @@ _tmp_wm_median15.jpg
 01_261_graha-pratama-graha-pratama_20160914044010_35585.JPG
 01_261_graha-pratama-graha-pratama_20180530084620_21410.jpg
 01_262_menara-hijau-menara-hijau_20160914044227_61234.JPG
+01_262_menara-hijau-menara-hijau_20170331113111_52925.jpg
 01_262_menara-hijau-menara-hijau_20180105102226_92096.jpg
 01_264_wisma-korindo-wisma-korindo_20160914044804_53547.JPG
 01_264_wisma-korindo-wisma-korindo_20170309104318_65649.jpg
@@ -659,6 +670,7 @@ _tmp_wm_median15.jpg
 01_280_graha-sentra-graha-sentra_20160914044019_68341.JPG
 01_280_graha-sentra-graha-sentra_20180507073446_42702.jpg
 01_281_the-prime-ex-bkp-office-tower-the-prime_20160914044732_25536.JPG
+01_281_the-prime-ex-bkp-office-tower-the-prime_20170320074245_35194.jpg
 01_281_the-prime-ex-bkp-office-tower-the-prime_20180507074442_16011.jpg
 01_283_soewarna-business-park-soewarna-business-park_20201111200633_38929.jpg
 01_284_world-capital-tower-world-capital-tower_20171212084712_81139.jpg
@@ -729,8 +741,10 @@ _tmp_wm_median15.jpg
 01_343_sopo-del-tower-sopo-del-tower-b_20171212082304_81848.jpg
 01_344_the-hundred-the-hundred_20160914044722_75752.jpg
 01_346_ciputra-world-1-ciputra-world-1-tower-2_20160914043805_28103.jpg
+01_346_ciputra-world-1-ciputra-world-1-tower-2_20170310015357_99800.jpg
 01_347_menara-astra-menara-astra_20160914044154_41462.jpg
 01_347_menara-astra-menara-astra_20170222072420_26744.jpg
+01_348_centennial-millenium-millenium-centennial-center_20180202025856_92476.jpg
 01_348_millennium-centennial-center-millenium-centennial-center_20191113093825_31622.jpeg
 01_349_the-icon-tower-the-icon-tower_20160914044724_81934.jpg
 01_350_pacific-century-premium-developments-pcpd-pacific-century-place-tower-pcp_20171024021907_63218.jpg
@@ -953,6 +967,7 @@ _tmp_wm_median15.jpg
 01_478_menara-kompas-menara-kompas_20170317114232_51483.jpg
 01_478_menara-kompas-menara-kompas_20180105102332_21259.jpg
 01_479_gedung-unifam-gedung-unifam_20170222101923_86827.jpg
+01_479_gedung-unifam-gedung-unifam_20170316042208_37925.jpg
 01_479_gedung-unifam-gedung-unifam_20171017064553_34683.jpg
 01_481_gedung-jaga-gedung-jaga_20170320101711_93642.jpg
 01_481_gedung-jaga-gedung-jaga_20170320111046_61215.jpg
@@ -1118,6 +1133,7 @@ _tmp_wm_median15.jpg
 01_597_plaza-timor-plaza-timor_20180706090601_53833.jpg
 01_597_plaza-timor-plaza-timor_20180706091130_19389.jpg
 01_597_plaza-timor-plaza-timor_20180718063358_57666.jpg
+01_598_alfa-tower-alfa-tower_20180718034154_91383.jpg
 01_598_alfa-tower-alfa-tower_20180718100240_77086.jpeg
 01_599_gedung-ranuza-gedung-ranuza_20180706090738_82123.jpg
 01_600_mgk-kemayoran-mgk-office-tower-b_20180718035004_67017.jpg
@@ -2037,6 +2053,7 @@ _tmp_wm_median15.jpg
 02_13_menara-jamsostek-menara-jamsostek-south-tower_20160914044239_54671.jpeg
 02_13_menara-jamsostek-menara-jamsostek-south-tower_20170331113220_24915.jpg
 02_14_menara-mulia-menara-mulia_20160914044254_84081.JPG
+02_14_menara-mulia-menara-mulia_20170317114328_39418.jpg
 02_14_menara-mulia-menara-mulia_20170320062750_29638.jpg
 02_15_patra-jasa-patra-jasa_20170320060803_33463.jpg
 02_15_patra-jasa-patra-jasa_20170320075544_83891.jpg
@@ -2171,6 +2188,7 @@ _tmp_wm_median15.jpg
 02_78_axa-tower-axa-tower_20170331102740_92034.jpg
 02_79_ciputra-world-1-dbs-bank-tower_20160914043807_86912.JPG
 02_79_ciputra-world-1-dbs-bank-tower_20170214035631_65634.jpg
+02_79_ciputra-world-1-dbs-bank-tower_20170310015326_14709.jpg
 02_80_gedung-rifa-gedung-rifa_20180403100319_91145.jpg
 02_81_graha-paramita-graha-paramita_20160914044010_89188.JPG
 02_81_graha-paramita-graha-paramita_20180416092455_30139.jpg
@@ -2184,6 +2202,7 @@ _tmp_wm_median15.jpg
 02_85_satrio-tower-satrio-tower_20170309102708_22511.jpg
 02_85_satrio-tower-satrio-tower_20170320063006_46573.jpg
 02_86_aia-central-aia-central_20160914043659_17566.JPG
+02_86_aia-central-aia-central_20170317112708_10462.jpg
 02_86_aia-central-aia-central_20170428015349_18823.jpeg
 02_87_anz-tower-anz-tower_20160914043700_68800.jpg
 02_87_anz-tower-anz-tower_20170214034818_38608.jpg
@@ -2276,6 +2295,7 @@ _tmp_wm_median15.jpg
 02_128_sequis-center-sequis-center_20171027085513_16355.jpg
 02_129_sona-topas-tower-sona-topas-tower_20160914044613_13525.jpg
 02_129_sona-topas-tower-sona-topas-tower_20170214034148_67310.jpg
+02_129_sona-topas-tower-sona-topas-tower_20170418023245_11774.jpg
 02_130_sudirman-plaza-indofood-tower_20160914044644_50919.jpg
 02_130_sudirman-plaza-indofood-tower_20170314084903_44040.jpg
 02_131_sudirman-plaza-plaza-marein_20160915070608_35507.jpg
@@ -2550,6 +2570,7 @@ _tmp_wm_median15.jpg
 02_270_gedung-bri-agro-ex-oleos-1-gedung-bri-agro_20180530081551_17381.jpg
 02_271_graha-krama-yudha-graha-krama-yudha_20180530083347_42044.jpg
 02_272_kobexindo-tower-kobexindo-tower_20160914044121_67642.JPG
+02_272_kobexindo-tower-kobexindo-tower_20170313102431_49362.jpg
 02_272_kobexindo-tower-kobexindo-tower_20180507074308_28372.jpg
 02_273_emerald-tower-emerald-tower_20160914043824_36673.JPG
 02_273_emerald-tower-emerald-tower_20170309100614_19428.jpg
@@ -2862,6 +2883,7 @@ _tmp_wm_median15.jpg
 02_503_the-smith-alam-sutera-the-smith_20180730062553_58501.jpg
 02_504_m-town-office-tower-1-m-town-office-tower-i_20170418023622_11247.jpg
 02_504_m-town-office-tower-1-m-town-office-tower-i_20201229084018_98165.jpg
+02_505_the-prominence-the-prominence-office-tower_20170505095813_32390.jpg
 02_505_the-prominence-the-prominence-office-tower_20170720081441_78464.jpg
 02_505_the-prominence-the-prominence-office-tower_20170913042729_13283.jpg
 02_506_kantor-taman-a9-kantor-taman-a9_20170620041653_77971.jpg
@@ -3086,6 +3108,7 @@ _tmp_wm_median15.jpg
 02_Graha-Inti-Fauzi_20210204_4059e80e-b35c-e711-8118-e0071b710a01_001.jpg
 02_Graha-Mandiri_20221027_26ABD102-B35C-E711-8118-E0071B710A01_001.jpg
 02_graha-mir-exterior-1680488136478-0.jpg
+02_graha-sentra-exterior-1680488489913-0.jpg
 02_graha-surveyor-indonesia-exterior-1690535795533-1.jpg
 02_granadi-exterior-1689673256102-2.jpg
 02_green-office-park-1-north-tower-exterior-1676437701833-1.jpg
@@ -3099,6 +3122,7 @@ _tmp_wm_median15.jpg
 02_hwa-tower-exterior-1692589322889-3.jpg
 02_hwa-tower-interior-1692589929400-1.jpg
 02_hyuepdz34vduq50vkwhq.jpg
+02_indonesia-satu-north-tower-exterior-1667793806965-0.jpg
 02_Indonesia-Stock-Exchange--IDX-Tower-1-_20200317_fcaff314-b35c-e711-8118-e0071b710a01_001.jpg
 02_Indonesia-Stock-Exchange--IDX-Tower-2-_20200317_02b0f314-b35c-e711-8118-e0071b710a01_001.jpg
 02_Indonesia-Stock-Exchange--IDX-Tower-2-_20220606_02b0f314-b35c-e711-8118-e0071b710a01_001.jpg
@@ -3406,6 +3430,7 @@ _tmp_wm_median15.jpg
 03_84_rdtx-tower-ex-menara-bank-danamon-mega-kuningan-rdtx-tower_20170222072038_20008.jpg
 03_85_satrio-tower-satrio-tower_20160914044537_94283.JPG
 03_85_satrio-tower-satrio-tower_20170320063007_30662.jpeg
+03_85_satrio-tower-satrio-tower_20171212092247_21025.jpg
 03_86_aia-central-aia-central_20170320080110_69376.jpg
 03_86_aia-central-aia-central_20170428015357_45994.jpeg
 03_87_anz-tower-anz-tower_20160914043700_87212.jpg
@@ -3521,6 +3546,7 @@ _tmp_wm_median15.jpg
 03_152_oil-center-building-oil-center-building_20180416094503_90711.jpg
 03_153_plaza-permata-plaza-permata_20160914044503_94154.jpeg
 03_153_plaza-permata-plaza-permata_20170727092658_29230.jpg
+03_153_plaza-permata-plaza-permata_20180606022750_28707.jpg
 03_154_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-1_20170316044021_56172.jpg
 03_155_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-2_20170314090410_92051.jpg
 03_155_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-2_20170316044107_53368.jpg
@@ -3775,6 +3801,7 @@ _tmp_wm_median15.jpg
 03_335_telkom-landmark-tower-2-telkom-landmark-tower-2_20170404103054_21032.jpg
 03_335_telkom-landmark-tower-2-telkom-landmark-tower-2_20180413091815_19854.jpg
 03_337_mangkuluhur-city-mangkuluhur-city_20190215024429_61398.jpg
+03_337_mangkuluhur-tower-mangkuluhur-tower_20170222074058_75670.jpg
 03_337_mangkuluhur-tower-mangkuluhur-tower_20180416031756_87261.jpg
 03_341_menara-pertiwi-menara-pertiwi_20181015061433_67040.jpeg
 03_342_sopo-del-tower-sopo-del-tower-a_20170310021553_69760.jpg
@@ -3889,6 +3916,7 @@ _tmp_wm_median15.jpg
 03_439_gp-plaza-gp-plaza_20171212073021_90854.jpg
 03_439_gp-plaza-gp-plaza_20180801070558_37919.jpg
 03_440_land-mark-pluit-land-mark-pluit_20161024033754_12339.jpg
+03_440_landmark-pluit-land-mark-pluit_20170310081353_64451.jpg
 03_440_landmark-pluit-land-mark-pluit_20180522040051_28360.jpg
 03_441_wisma-barito-pacific-wisma-barito-pacific-tower-a_20161124033206_19971.jpg
 03_442_wisma-barito-pacific-wisma-barito-pacific-tower-b_20161124033734_45739.jpeg
@@ -3931,6 +3959,7 @@ _tmp_wm_median15.jpg
 03_472_sainath-tower-sainath-tower_20180417044928_64816.jpg
 03_473_wisma-iwi-wisma-iwi_20170125091040_13186.jpg
 03_474_wisma-bakti-mulia-wisma-bakti-mulia_20180404071806_63418.jpg
+03_474_wisma-bakti-mulia-wisma-bakti-mulia_20180518085004_41602.jpg
 03_476_gedung-samudera-indonesia-gedung-samudera-indonesia_20171212074957_32287.jpg
 03_477_plaza-summarecon-bekasi-plaza-summarecon-bekasi_20170616081151_68884.jpeg
 03_477_plaza-summarecon-bekasi-plaza-summarecon-bekasi_20190729043847_42038.jpg
@@ -4250,6 +4279,7 @@ _tmp_wm_median15.jpg
 03_sopo-del-tower-a-exterior-1690526760444-0.jpg
 03_South-Quarter-Tower-A_20200813_3a0df6e4-b65c-e711-8112-e0071b72b701_002.jpg
 03_South-Quarter-Tower-B_20200803_ec2bf302-b75c-e711-8112-e0071b72b701_002.jpg
+03_south-quarter-tower-b-exterior-1678072842910-0.jpg
 03_South-Quarter-Tower-C_20200803_fc7be80e-b75c-e711-8112-e0071b72b701_002.jpg
 03_synergy-building-exterior-1677470114069-0.jpg
 03_t-tower-exterior-1689586173821-0.jpg
@@ -4289,6 +4319,7 @@ _tmp_wm_median15.jpg
 03_zw1hydkmbghpdxrjytqs.jpg
 04_-maritime-tower-exterior-1690519302980-3.jpg
 04_1_capital-place-capital-place_20160914043746_40025.JPG
+04_1_capital-place-capital-place_20170410041742_54911.jpg
 04_1_capital-place-capital-place_20170616073546_51797.jpeg
 04_2_centennial-tower-centennial-tower_20160914043749_95336.JPG
 04_2_centennial-tower-centennial-tower_20170314084532_80887.jpg
@@ -4453,6 +4484,7 @@ _tmp_wm_median15.jpg
 04_109_menara-sudirman-menara-sudirman_20171027084504_24119.jpeg
 04_111_mid-plaza-mid-plaza-2_20170428022241_12784.jpeg
 04_112_office-8-office-8_20170314090216_69179.jpeg
+04_112_office-8-office-8_20170316043135_23898.jpg
 04_113_one-pacific-place-one-pacific-place_20170314090320_31386.jpg
 04_114_plaza-abda-ex-plaza-asia-plaza-abda_20160914044447_42550.jpg
 04_114_plaza-abda-ex-plaza-asia-plaza-abda_20170214035301_39756.jpg
@@ -4467,6 +4499,7 @@ _tmp_wm_median15.jpg
 04_122_sahid-sudirman-center-sahid-sudirman-center_20170214033757_11517.jpg
 04_123_sampoerna-strategic-square-sampoerna-strategic-south-tower_20170222072503_69643.jpg
 04_123_sampoerna-strategic-square-sampoerna-strategic-south-tower_20170331105707_45538.jpg
+04_124_sampoerna-strategic-square-sampoerna-strategic-north-tower_20170222072529_96469.jpg
 04_124_sampoerna-strategic-square-sampoerna-strategic-north-tower_20170411100951_25475.jpg
 04_125_senayan-square-sentral-senayan-1_20160914044540_59319.jpeg
 04_125_senayan-square-sentral-senayan-1_20170331105948_67247.jpg
@@ -4511,7 +4544,9 @@ _tmp_wm_median15.jpg
 04_153_plaza-permata-plaza-permata_20160914044503_65591.jpg
 04_153_plaza-permata-plaza-permata_20170727092701_43594.jpg
 04_153_plaza-permata-plaza-permata_20180606022750_19482.jpg
+04_154_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-1_20170316044022_43777.jpg
 04_155_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-2_20170314090411_25374.jpeg
+04_155_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-2_20170316044108_78540.jpg
 04_157_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-3_20170314090500_39160.jpg
 04_157_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-3_20170316044214_26524.jpg
 04_158_the-city-tower-the-city-tower_20160914044708_64348.jpg
@@ -4523,6 +4558,7 @@ _tmp_wm_median15.jpg
 04_162_wisma-nusantara-wisma-nusantara_20180104043229_65184.jpeg
 04_162_wisma-nusantara-wisma-nusantara_20180413084850_62865.jpg
 04_164_blue-green-integrated-boutique-office-blue-green-office-tower_20181015023012_61727.jpg
+04_165_gallery-west-gallery-west_20170222074747_98515.jpg
 04_165_gallery-west-gallery-west_20171024044020_70257.jpg
 04_165_gallery-west-gallery-west_20171212072208_40376.jpg
 04_166_gedung-graha-kencana-gedung-graha-kencana_20170712101442_55273.jpeg
@@ -4602,6 +4638,7 @@ _tmp_wm_median15.jpg
 04_217_menara-citibank-pondok-indah-menara-citibank-pondok-indah_20170125085019_22426.jpg
 04_217_menara-citibank-pondok-indah-menara-citibank-pondok-indah_20180105102126_41667.jpg
 04_218_metropolitan-tower-metropolitan-tower_20160914044319_51177.JPG
+04_218_metropolitan-tower-metropolitan-tower_20170222073630_19223.jpg
 04_218_metropolitan-tower-metropolitan-tower_20170809020213_54885.jpeg
 04_219_oleos-2-oleos-2_20160914044341_76406.jpg
 04_219_oleos-2-oleos-2_20180124100241_62682.jpeg
@@ -4641,6 +4678,7 @@ _tmp_wm_median15.jpg
 04_247_graha-inti-fauzi-graha-inti-fauzi_20160914043956_52723.JPG
 04_247_graha-inti-fauzi-graha-inti-fauzi_20180530083138_20474.jpg
 04_248_kota-kasablanka-88-kasablanka-tower-a_20170214042621_54857.jpeg
+04_248_kota-kasablanka-88-kasablanka-tower-a_20170222074616_76071.jpg
 04_248_kota-kasablanka-88-kasablanka-tower-b_20160914090851_25457.jpg
 04_249_kota-kasablanka-88-kota-kasablanka-tower-b-prudential-center_20170214042815_68757.jpg
 04_249_kota-kasablanka-88-kota-kasablanka-tower-prudential-center_20160914090633_53821.jpeg
@@ -4648,7 +4686,9 @@ _tmp_wm_median15.jpg
 04_254_wisma-pmi-ex-gedung-treva-wisma-pmi_20180718062557_20916.jpg
 04_255_gedung-victoria-gedung-victoria_20180718044059_76291.jpg
 04_256_one-wolter-place-one-wolter-place_20170214042727_34358.jpg
+04_257_menara-sentraya-menara-sentraya_20170310065643_87770.jpg
 04_257_menara-sentraya-menara-sentraya_20180522063130_95501.jpeg
+04_258_haery-building-haery-building_20171212084546_33660.jpg
 04_259_kemang-point-kemang-point_20170222074547_12718.jpg
 04_259_kemang-point-kemang-point_20180718062902_14437.jpg
 04_260_wisma-kemang-wisma-kemang_20170214042847_18389.jpg
@@ -4675,6 +4715,7 @@ _tmp_wm_median15.jpg
 04_275_graha-rekso-graha-rekso_20160914044013_55188.jpg
 04_275_graha-rekso-graha-rekso_20180920091014_16610.jpg
 04_276_harton-tower-harton-tower_20171218090837_92512.jpg
+04_276_harton-tower-harton-tower_20180802043505_50970.jpg
 04_277_kirana-two-kirana-two_20160914044120_36349.JPG
 04_277_kirana-two-kirana-two_20170404090027_78127.jpeg
 04_278_menara-satu-menara-satu_20180201102420_51511.jpg
@@ -4721,7 +4762,9 @@ _tmp_wm_median15.jpg
 04_337_mangkuluhur-city-mangkuluhur-city_20190215024429_40956.jpg
 04_337_mangkuluhur-tower-mangkuluhur-tower_20180416031756_67015.jpg
 04_341_menara-pertiwi-menara-pertiwi_20181015061433_76393.jpg
+04_342_sopo-del-tower-sopo-del-tower-a_20170310021553_72863.jpg
 04_342_sopo-del-tower-sopo-del-tower-a_20171212082120_75769.jpg
+04_343_sopo-del-tower-sopo-del-tower-b_20170310021627_99263.jpg
 04_343_sopo-del-tower-sopo-del-tower-b_20180503093925_18369.jpg
 04_344_the-hundred-the-hundred_20160914044723_63552.jpg
 04_347_menara-astra-menara-astra_20160914044158_85683.jpg
@@ -4730,6 +4773,7 @@ _tmp_wm_median15.jpg
 04_351_sequis-tower-sequis-tower_20160914044552_67185.jpg
 04_351_sequis-tower-sequis-tower_20190627024452_47453.jpg
 04_352_sudirman-78-sudirman-78_20190517035719_92096.jpg
+04_353_world-trade-center-complex-world-trade-center-3_20170313030212_35771.jpg
 04_354_sme-tower-sme-tower_20180405023357_87003.jpg
 04_357_wisma-millenia-wisma-millenia_20180405024746_77233.jpeg
 04_359_lippo-thamrin-lippo-thamrin_20170317114109_40298.jpg
@@ -4772,6 +4816,7 @@ _tmp_wm_median15.jpg
 04_413_the-suites-tower-the-suites-tower_20180105102651_89062.jpg
 04_414_wisma-smr-wisma-smr_20160914044834_55164.jpeg
 04_415_askrida-tower-askrida-tower_20180507071016_82679.jpg
+04_417_graha-mir-graha-mir_20170320080339_38506.jpg
 04_417_graha-mir-graha-mir_20170411091341_14676.jpg
 04_418_is-plaza-is-plaza_20180507074014_85388.jpg
 04_419_mth-square-mth-square_20180514094900_73060.jpeg
@@ -4818,6 +4863,7 @@ _tmp_wm_median15.jpg
 04_454_wisma-adr-wisma-adr_20161124042411_94370.jpg
 04_454_wisma-adr-wisma-adr_20180516094229_98323.jpg
 04_455_wisma-akr-wisma-akr_20161124042621_79148.jpg
+04_455_wisma-akr-wisma-akr_20170323100458_27338.jpg
 04_455_wisma-akr-wisma-akr_20170512035152_29204.jpg
 04_456_wisma-81-wisma-81_20201229090651_82183.jpeg
 04_459_maspion-plaza-maspion-plaza_20170222105407_31751.jpg
@@ -4849,6 +4895,7 @@ _tmp_wm_median15.jpg
 04_481_gedung-jagat-gedung-jagat_20180227074104_70257.jpg
 04_481_gedung-jagat-gedung-jagat_20180227074150_31566.jpg
 04_482_bellezza-gapura-prima-office-tower_20170612034110_68215.jpg
+04_484_gedung-baja-gedung-baja-tower-b_20170313023328_11441.jpg
 04_484_gedung-baja-gedung-baja-tower-b_20170512065524_66284.jpg
 04_485_its-office-tower-its-office-tower_20170331115530_33886.jpg
 04_485_its-office-tower-its-office-tower_20180420045958_69936.jpg
@@ -4935,6 +4982,7 @@ _tmp_wm_median15.jpg
 04_627_indy-office-park-new-office-tripatra-bintaro_20181015023630_92124.jpg
 04_634_menara-tendean-menara-tendean_20190729043804_31665.jpg
 04_649_trio-building-trio-building_20190214101708_53718.jpg
+04_649_trio-building-trio-building_20190313081413_77764.jpg
 04_651_panin-tower-senayan-city-panin-tower-senayan-city_20190729043241_52318.jpg
 04_652_tata-building-tata-building_20190313033733_58284.jpeg
 04_656_wisma-megah-sunter-wisma-megah-sunter_20190731063912_27688.jpeg
@@ -5027,6 +5075,7 @@ _tmp_wm_median15.jpg
 04_Menara-Kadin_208256_20200729_003.jpg
 04_Menara-Kompas_20210615_f790ee32-b75c-e711-8112-e0071b72b701_003.jpg
 04_Menara-Mandiri-2--ex-Citibank-_20200310_533dd808-b35c-e711-8118-e0071b710a01_004.jpg
+04_menara-merdeka-floor-plan-1758186558261-3.jpg
 04_Menara-Pertiwi_20210615_ca04e6f6-b65c-e711-8112-e0071b72b701_004.jpg
 04_menara-pertiwi-exterior-1670811593530-0.jpg
 04_Menara-Rajawali_20230208_639AE620-B35C-E711-8118-E0071B710A01_003.jpg
@@ -5209,6 +5258,7 @@ _tmp_wm_median15.jpg
 05_77_the-east-the-east_20160914044714_93665.jpg
 05_77_the-east-the-east_20170927093824_28881.jpg
 05_78_axa-tower-axa-tower_20160914043708_76973.jpg
+05_78_axa-tower-axa-tower_20170317113032_44770.jpg
 05_78_axa-tower-axa-tower_20180412063012_22957.jpg
 05_79_ciputra-world-1-dbs-bank-tower_20160914043808_36557.JPG
 05_79_ciputra-world-1-dbs-bank-tower_20170214035632_41651.jpg
@@ -5298,6 +5348,7 @@ _tmp_wm_median15.jpg
 05_152_oil-center-building-oil-center-building_20180416094503_52454.jpg
 05_153_plaza-permata-plaza-permata_20170727092703_53676.jpg
 05_153_plaza-permata-plaza-permata_20180413100204_31581.jpg
+05_154_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-1_20170316044022_84466.jpg
 05_155_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-2_20170314090411_33081.jpg
 05_155_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-2_20170316044108_57188.jpg
 05_157_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-3_20170314090501_64237.jpg
@@ -5416,6 +5467,7 @@ _tmp_wm_median15.jpg
 05_254_wisma-pmi-ex-gedung-treva-wisma-pmi_20180718062557_59817.jpeg
 05_255_gedung-victoria-gedung-victoria_20180718044059_88307.jpg
 05_256_one-wolter-place-one-wolter-place_20170214042727_84385.jpeg
+05_257_menara-sentraya-menara-sentraya_20170310065704_84978.jpg
 05_257_menara-sentraya-menara-sentraya_20180522063131_60975.jpg
 05_258_haery-building-haery-building_20171212084548_63433.jpg
 05_259_kemang-point-kemang-point_20180718062902_82042.jpg
@@ -5586,6 +5638,7 @@ _tmp_wm_median15.jpg
 05_473_wisma-iwi-wisma-iwi_20170125091043_84445.jpeg
 05_474_wisma-bakti-mulia-wisma-bakti-mulia_20180404071807_63011.jpg
 05_476_gedung-samudera-indonesia-gedung-samudera-indonesia_20171212075002_72762.jpg
+05_477_plaza-summarecon-bekasi-plaza-summarecon-bekasi_20190729043848_26454.jpg
 05_478_menara-kompas-menara-kompas_20170317114234_58791.jpg
 05_478_menara-kompas-menara-kompas_20180105102359_41480.jpg
 05_479_gedung-unifam-gedung-unifam_20171017064601_41447.jpg
@@ -5601,6 +5654,7 @@ _tmp_wm_median15.jpg
 05_491_tbs-tower-tbs-tower_20170310090943_97514.jpg
 05_492_springhill-office-tower-springhill-office-tower_20180417045305_42039.jpg
 05_493_office-one-office-one_20180926064600_51129.jpg
+05_494_menara-era-menara-era_20170314093320_35150.jpg
 05_494_menara-era-menara-era_20171212074054_21453.jpg
 05_495_podomoro-city-soho-podomoro-city_20171027085931_96077.jpg
 05_498_kmo-building-kmo-building_20170411040752_98631.jpg
@@ -5609,6 +5663,7 @@ _tmp_wm_median15.jpg
 05_499_altira-altira-office-park-mini-office_20180420064509_83457.jpg
 05_500_world-trade-center-complex-world-trade-center-5_20170927094117_17587.jpeg
 05_505_the-prominence-the-prominence-office-tower_20170913042731_34874.jpg
+05_505_the-prominence-the-prominence-office-tower_20171218091507_17784.jpg
 05_506_kantor-taman-a9-kantor-taman-a9_20180514094239_82427.jpg
 05_507_the-mansion-bougenville-fontana-office-tower_20170421084909_24964.jpg
 05_511_scientia-garden-scientia-business-park_20190618080817_56897.jpg
@@ -5937,6 +5992,7 @@ _tmp_wm_median15.jpg
 06_131_sudirman-plaza-plaza-marein_20171024034624_82392.jpg
 06_132_tamara-center-tamara-center_20180416090544_37441.jpeg
 06_133_the-energy-building-the-energy-tower_20170713014745_59312.jpg
+06_133_the-energy-tower-the-energy-tower_20170310015602_14651.jpg
 06_134_wisma-46-wisma-46_20170217110729_95041.jpg
 06_136_wisma-bumiputera-wisma-bumiputera_20170214034456_54601.jpg
 06_137_wisma-gkbi-wisma-gkbi_20170320063340_62945.jpeg
@@ -5956,6 +6012,7 @@ _tmp_wm_median15.jpg
 06_155_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-2_20170314090412_28143.jpg
 06_155_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-2_20170316044109_66796.jpg
 06_157_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-3_20170314090502_14464.jpg
+06_157_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-3_20170316044215_78924.jpg
 06_158_the-city-tower-the-city-tower_20180503045433_34534.jpg
 06_159_the-plaza-the-plaza_20160914044731_88916.jpeg
 06_159_the-plaza-the-plaza_20171114081243_15215.jpg
@@ -6024,6 +6081,7 @@ _tmp_wm_median15.jpg
 06_216_menara-165-menara-165_20180502062105_77435.jpg
 06_217_menara-citibank-pondok-indah-menara-citibank-pondok-indah_20180105102130_51602.jpg
 06_218_metropolitan-tower-metropolitan-tower_20160914044320_34473.JPG
+06_218_metropolitan-tower-metropolitan-tower_20170222073631_68353.jpg
 06_218_metropolitan-tower-metropolitan-tower_20170809020214_94156.jpg
 06_220_palma-tower-palma-tower_20170913044810_79920.jpg
 06_224_perkantoran-hijau-arkadia-arkadia-tower-d_20160914044429_96792.jpg
@@ -6058,6 +6116,7 @@ _tmp_wm_median15.jpg
 06_254_wisma-pmi-ex-gedung-treva-wisma-pmi_20180718062557_28626.jpg
 06_255_gedung-victoria-gedung-victoria_20180718044059_18868.jpg
 06_256_one-wolter-place-one-wolter-place_20170214042728_88031.jpg
+06_257_menara-sentraya-menara-sentraya_20170310065705_83951.jpg
 06_257_menara-sentraya-menara-sentraya_20180522063132_99721.jpg
 06_259_kemang-point-kemang-point_20180718062903_84706.jpg
 06_260_wisma-kemang-wisma-kemang_20170214042848_43973.jpg
@@ -6118,6 +6177,7 @@ _tmp_wm_median15.jpg
 06_353_world-trade-center-complex-world-trade-center-3_20170313030251_15592.jpg
 06_354_sme-tower-sme-tower_20180405023358_50029.jpg
 06_357_wisma-millenia-wisma-millenia_20180405024746_15603.jpg
+06_359_lippo-thamrin-lippo-thamrin_20170317114111_60284.jpg
 06_363_fedex-rpx-centre-building-rpx-centre-building_20180502075518_80366.jpg
 06_366_zuria-tower-zuria-tower_20180130073058_56807.jpeg
 06_366_zuria-tower-zuria-tower_20181115021316_39343.jpeg
@@ -6224,6 +6284,7 @@ _tmp_wm_median15.jpg
 06_499_altira-altira-office-park-mini-office_20180420064509_80565.jpg
 06_500_world-trade-center-complex-world-trade-center-5_20170927094122_24586.jpeg
 06_505_the-prominence-the-prominence-office-tower_20170913042846_53250.jpg
+06_505_the-prominence-the-prominence-office-tower_20171218091549_63892.jpg
 06_506_kantor-taman-a9-kantor-taman-a9_20180514094240_37250.jpg
 06_507_the-mansion-bougenville-fontana-office-tower_20170421084915_10451.jpeg
 06_511_scientia-garden-scientia-business-park_20190618080817_87179.jpg
@@ -6468,6 +6529,7 @@ _tmp_wm_median15.jpg
 07_109_menara-sudirman-menara-sudirman_20171027084511_87106.jpg
 07_111_mid-plaza-mid-plaza-2_20170428022307_97146.jpeg
 07_112_office-8-office-8_20170314090217_64821.jpeg
+07_112_office-8-office-8_20170323095815_72066.jpg
 07_113_one-pacific-place-one-pacific-place_20170314090321_10861.jpg
 07_114_plaza-abda-ex-plaza-asia-plaza-abda_20170927093017_19825.jpg
 07_114_plaza-abda-ex-plaza-asia-plaza-abda_20171212074716_86803.jpeg
@@ -6513,6 +6575,7 @@ _tmp_wm_median15.jpg
 07_167_sastra-graha-sastra-graha_20180913021950_67982.jpg
 07_168_the-vida-the-vida_20170331110150_80821.jpg
 07_169_puri-indah-financial-tower-puri-indah-financial-tower_20180227073828_56457.jpg
+07_169_puri-indah-financial-tower-puri-indah-financial-tower_20180227073913_46748.jpg
 07_170_apl-tower-apl-tower_20161020044725_68623.jpg
 07_170_apl-tower-apl-tower_20170320060554_38129.jpg
 07_171_gedung-total-gedung-total_20171212075656_91399.jpg
@@ -6558,6 +6621,7 @@ _tmp_wm_median15.jpg
 07_215_manhattan-square-manhattan-square-tower-1_20160914044141_75869.JPG
 07_216_menara-165-menara-165_20180502062105_47873.jpg
 07_217_menara-citibank-pondok-indah-menara-citibank-pondok-indah_20180105102132_53348.jpg
+07_218_metropolitan-tower-metropolitan-tower_20170309101645_20593.jpg
 07_218_metropolitan-tower-metropolitan-tower_20170809020215_32159.jpg
 07_220_palma-tower-palma-tower_20170913044811_68675.jpg
 07_226_perkantoran-hijau-arkadia-arkadia-tower-f_20170217110403_15903.jpg
@@ -6615,6 +6679,7 @@ _tmp_wm_median15.jpg
 07_285_ciputra-world-2-tokopedia-tower-tokopedia-tower_20170314090912_90741.jpg
 07_288_district-8-prosperity-tower_20180412065545_91168.jpg
 07_289_district-8-treasury-tower_20180412070238_36934.jpg
+07_294_the-tower-the-tower_20171218091750_39483.jpg
 07_294_the-tower-the-tower_20180205040147_48765.jpg
 07_296_gedung-setiabudi-one-gedung-setiabudi-one_20170616075250_42808.jpg
 07_297_menara-kuningan-menara-kuningan_20160914044249_70362.jpeg
@@ -6651,6 +6716,7 @@ _tmp_wm_median15.jpg
 07_376_tamansari-parama-tamansari-parama_20180416095603_89930.jpg
 07_377_the-h-tower-the-h-tower_20170616081757_32332.jpg
 07_378_wisma-bakrie-wisma-bakrie-1_20161124040025_45583.jpg
+07_378_wisma-bakrie-wisma-bakrie-1_20180404072534_33134.jpg
 07_379_wisma-bakrie-wisma-bakrie-2_20170404103203_17271.jpg
 07_381_granadi-granadi_20180413063454_33823.jpg
 07_388_graha-mandiri-graha-mandiri_20180416063829_41764.jpg
@@ -6829,6 +6895,7 @@ _tmp_wm_median15.jpg
 07_plaza-galeon-interior-1697001831443-6.jpg
 07_propan-tower-interior-1722582119885-2.jpg
 07_Puri-Indah-Financial-Tower_208058_20200729_006.jpg
+07_ra-mampang-office-interior-1708421408749-2.jpg
 07_revenue-tower-interior-1668163668681-3.jpg
 07_Sampoerna-Strategic-Square--South-Tower-_20200309_e684d92c-b35c-e711-8118-e0071b710a01_001.jpg
 07_Sequis-Tower_20200729_8239d44a-b35c-e711-8118-e0071b710a01_001.jpg
@@ -6908,6 +6975,7 @@ _tmp_wm_median15.jpg
 08_84_rdtx-tower-ex-menara-bank-danamon-mega-kuningan-rdtx-tower_20170411094319_12139.jpg
 08_85_satrio-tower-satrio-tower_20170320063010_58834.jpg
 08_86_aia-central-aia-central_20170428021004_18815.jpeg
+08_87_anz-tower-anz-tower_20170214034821_22807.jpg
 08_88_chase-plaza-chase-plaza-podium_20180403095116_97240.jpg
 08_90_equity-tower-equity-tower_20170705095856_17988.jpg
 08_91_gedung-artha-graha-gedung-artha-graha_20171027084145_98165.jpg
@@ -6933,6 +7001,7 @@ _tmp_wm_median15.jpg
 08_115_plaza-bapindo-menara-mandiri-menara-mandiri-2_20180502044549_37530.jpeg
 08_117_graha-purna-yudha-gedung-veteran-ri-gedung-veteran-ri_20180605031442_15145.jpg
 08_118_plaza-sentral-plaza-sentral_20180516065504_53836.jpg
+08_119_prince-center-prince-center_20170214033439_41928.jpg
 08_122_sahid-sudirman-center-sahid-sudirman-center_20170214033758_41686.jpg
 08_128_sequis-center-sequis-center_20171027085524_59778.jpg
 08_129_sona-topas-tower-sona-topas-tower_20170214034151_76235.jpg
@@ -6956,6 +7025,7 @@ _tmp_wm_median15.jpg
 08_154_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-1_20170316044023_97962.jpg
 08_155_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-2_20170314090412_30246.jpg
 08_155_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-2_20170316044109_77210.jpg
+08_157_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-3_20170316044216_28090.jpg
 08_158_the-city-tower-the-city-tower_20180503045435_60632.jpg
 08_159_the-plaza-the-plaza_20171114081252_79161.jpeg
 08_161_wisma-mandiri-ex-plaza-bumidaya-wisma-mandiri_20180411040658_44659.jpg
@@ -7057,6 +7127,7 @@ _tmp_wm_median15.jpg
 08_285_ciputra-world-2-tokopedia-tower-tokopedia-tower-ex-ciputra-world-2_20171017064403_54318.jpg
 08_288_district-8-prosperity-tower_20180412065545_56319.jpg
 08_289_district-8-treasury-tower_20180412070238_51206.jpeg
+08_294_the-tower-the-tower_20171218091751_92083.jpg
 08_294_the-tower-the-tower_20180205040151_67488.jpg
 08_296_gedung-setiabudi-one-gedung-setiabudi-one_20170616075305_93722.jpg
 08_297_menara-kuningan-menara-kuningan_20170331102505_60400.jpg
@@ -7077,6 +7148,7 @@ _tmp_wm_median15.jpg
 08_352_sudirman-78-sudirman-78_20190517035721_35568.jpg
 08_353_world-trade-center-complex-world-trade-center-3_20170313030252_10413.jpg
 08_354_sme-tower-sme-tower_20180405023358_68553.jpg
+08_359_lippo-thamrin-lippo-thamrin_20170317114112_94631.jpg
 08_363_fedex-rpx-centre-building-rpx-centre-building_20180502075519_82349.jpg
 08_366_zuria-tower-zuria-tower_20180130073104_66900.jpeg
 08_366_zuria-tower-zuria-tower_20181115021317_44662.jpeg
@@ -7149,6 +7221,7 @@ _tmp_wm_median15.jpg
 08_484_gedung-baja-gedung-baja-tower-b_20170512065551_22851.jpg
 08_485_its-office-tower-its-office-tower_20180420045959_21255.jpg
 08_486_gedung-baja-gedung-baja-tower-c_20170612020132_20945.jpg
+08_487_kencana-tower-kencana-tower_20180516091856_29717.jpg
 08_492_springhill-office-tower-springhill-office-tower_20180417045306_92267.jpg
 08_494_menara-era-menara-era_20170314093322_47506.jpg
 08_495_podomoro-city-soho-podomoro-city_20171027085936_81342.jpg
@@ -7158,6 +7231,7 @@ _tmp_wm_median15.jpg
 08_505_the-prominence-the-prominence-office-tower_20170913042852_42470.jpg
 08_505_the-prominence-the-prominence-office-tower_20171218091604_76867.jpg
 08_506_kantor-taman-a9-kantor-taman-a9_20180514094241_24183.jpg
+08_507_the-mansion-bougenville-fontana-office-tower_20170421085541_13127.jpg
 08_511_scientia-garden-scientia-business-park_20190618080817_13463.jpg
 08_512_graha-tirtadi-graha-tirtadi-senopati_20180514092120_69239.jpeg
 08_514_graha-tirtadi-graha-tirtadi-raden-saleh_20180404070017_54185.jpg
@@ -7227,6 +7301,7 @@ _tmp_wm_median15.jpg
 08_mmp-building-interior-1725437679908-2.jpg
 08_mnc-tower-interior-1726798892867-1.jpg
 08_modum4ng1mouu81hoicb.jpg
+08_mugi-griya-interior-1772439086594-0.jpg
 08_pakuwon-tower-interior-1662347603155-0.jpg
 08_plaza-galeon-exterior-1675925219857-2.jpg
 08_Puri-Indah-Financial-Tower_20221118_197CE80E-B75C-E711-8112-E0071B72B701_002.jpg
@@ -7257,8 +7332,11 @@ _tmp_wm_median15.jpg
 09_17_wisma-argo-manunggal-wisma-argo-manunggal_20180411090112_77291.jpg
 09_23_menara-batavia-menara-batavia_20180404071105_50530.jpg
 09_24_allianz-tower-allianz-tower_20170616071839_71110.jpeg
+09_26_arrtu-agro-nusantara-ex-graha-mip-arrtu-agro-nusantara_20180329015837_17002.jpg
+09_28_atrium-setiabudi-atrium-setiabudi_20171212075352_35417.jpg
 09_29_bakrie-tower-bakrie-tower_20170411091024_58810.jpg
 09_30_cyber-2-tower-cyber-2-tower_20180507071911_65267.jpeg
+09_31_gama-tower-ex-cemindo-tower-gama-tower_20170314084802_13392.jpg
 09_34_gedung-pphui-gedung-pphui_20170720020326_67068.jpg
 09_35_gedung-setiabudi-2-gedung-setiabudi-2_20170214041332_48175.jpg
 09_37_generali-office-park-gran-rubina-tower-1-gran-rubina-tower-1_20170411091809_69535.jpg
@@ -7321,7 +7399,9 @@ _tmp_wm_median15.jpg
 09_130_sudirman-plaza-indofood-tower_20170314084906_15118.jpg
 09_132_tamara-center-tamara-center_20180416090545_94255.jpg
 09_133_the-energy-building-the-energy-tower_20170713014806_47534.jpg
+09_134_wisma-46-wisma-46_20170217110729_87840.jpg
 09_136_wisma-bumiputera-wisma-bumiputera_20170214034456_72596.jpg
+09_137_wisma-gkbi-wisma-gkbi_20170320063341_78741.jpg
 09_139_wisma-keiai-wisma-keiai_20170217112455_41080.jpg
 09_142_world-trade-center-complex-world-trade-center-1_20171114081442_54880.jpg
 09_144_deutsche-bank-building-deutsche-bank-building_20180413073308_10577.jpg
@@ -7330,6 +7410,7 @@ _tmp_wm_median15.jpg
 09_149_menara-cakrawala-menara-cakrawala_20190524065817_52468.jpg
 09_150_menara-thamrin-menara-thamrin_20170220030004_36081.jpg
 09_153_plaza-bank-index-ex-plaza-permata-plaza-bank-index-ex-plaza-permata_20201122162405_94130.jpg
+09_153_plaza-permata-plaza-permata_20170727092721_46939.jpg
 09_155_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-2_20170314090413_79730.jpg
 09_158_the-city-tower-the-city-tower_20180503045435_18410.jpg
 09_159_the-plaza-the-plaza_20171114081257_21707.jpg
@@ -7338,6 +7419,7 @@ _tmp_wm_median15.jpg
 09_165_gallery-west-gallery-west_20180412062237_97471.jpg
 09_166_gedung-graha-kencana-gedung-graha-kencana_20170712101457_72860.jpg
 09_167_sastra-graha-sastra-graha_20180913021951_52715.jpg
+09_168_the-vida-the-vida_20170331110151_18041.jpg
 09_169_puri-indah-financial-tower-puri-indah-financial-tower_20180227073829_40640.jpg
 09_169_puri-indah-financial-tower-puri-indah-financial-tower_20180306030239_12615.jpg
 09_170_apl-tower-apl-tower_20170320060555_75031.jpg
@@ -7351,6 +7433,7 @@ _tmp_wm_median15.jpg
 09_178_wisma-sejahtera-wisma-sejahtera_20180405025117_27517.jpg
 09_179_griya-sinta-griya-sinta_20180411084427_78657.jpg
 09_180_wisma-bsg-wisma-bsg_20170418100739_32693.jpg
+09_181_menara-merdeka-menara-merdeka_20170616080506_48295.jpg
 09_182_wisma-hayam-wuruk-wisma-hayam-wuruk_20180411041443_11117.jpg
 09_188_gedung-arva-gedung-arva_20180411083511_96452.jpg
 09_189_hdi-hive-ex-menteng-office-park-hdi-hive_20170214042122_19124.jpg
@@ -7378,6 +7461,7 @@ _tmp_wm_median15.jpg
 09_220_palma-tower-palma-tower_20170913044815_39335.jpg
 09_228_plaza-simatupang-ex-plaza-alstom-plaza-simatupang-ex-plaza-alstom_20180502074710_95667.jpg
 09_229_plaza-aminta-plaza-aminta_20180712031731_42813.jpg
+09_230_plaza-oleos-plaza-oleos_20170314090753_28075.jpg
 09_230_plaza-oleos-plaza-oleos_20170320075751_77390.jpg
 09_231_pondok-indah-office-tower-pondok-indah-office-tower-2_20171114080923_26925.jpg
 09_232_pondok-indah-office-tower-pondok-indah-office-tower-3_20171114081118_10979.jpg
@@ -7391,11 +7475,15 @@ _tmp_wm_median15.jpg
 09_240_talavera-talavera-office-park_20180706090906_99808.jpg
 09_242_the-ceo-the-ceo_20180605093303_46924.jpg
 09_245_wisma-raharja-wisma-raharja_20160914044833_48006.jpg
+09_247_graha-inti-fauzi-graha-inti-fauzi_20180530083141_70778.jpg
+09_248_kota-kasablanka-88-kasablanka-tower-a_20170214042623_44751.jpg
 09_249_kota-kasablanka-88-kota-kasablanka-tower-b-prudential-center_20180507095403_21559.jpg
 09_253_gandaria-8-gandaria-8_20170331101837_24493.jpg
 09_254_wisma-pmi-ex-gedung-treva-wisma-pmi_20180718062558_22828.jpeg
+09_255_gedung-victoria-gedung-victoria_20180718044100_77354.jpg
 09_256_one-wolter-place-one-wolter-place_20170214042729_21536.jpg
 09_257_menara-sentraya-menara-sentraya_20180522063135_46380.jpg
+09_261_graha-pratama-graha-pratama_20180530084623_78258.jpg
 09_262_menara-hijau-menara-hijau_20181015023256_15253.jpg
 09_264_wisma-korindo-wisma-korindo_20180105102009_79904.jpeg
 09_265_gedung-fuyinto-sentra-mampang-gedung-fuyinto-sentra-mampang_20180530082610_30208.jpg
@@ -7405,8 +7493,10 @@ _tmp_wm_median15.jpg
 09_271_graha-krama-yudha-graha-krama-yudha_20180530083349_78168.jpeg
 09_272_kobexindo-tower-kobexindo-tower_20180507074310_78284.jpg
 09_273_emerald-tower-emerald-tower_20180507072414_74601.jpg
+09_274_graha-kirana-graha-kirana_20171017062524_16016.jpg
 09_275_graha-rekso-graha-rekso_20180920091015_91471.jpg
 09_276_harton-tower-harton-tower_20180507073908_44034.jpg
+09_277_kirana-two-kirana-two_20170404090029_53440.jpeg
 09_278_menara-satu-menara-satu_20180201102435_59286.jpg
 09_279_perwata-tower-perwata-tower_20170727093112_68171.jpg
 09_281_the-prime-ex-bkp-office-tower-the-prime_20180507074448_42998.jpg
@@ -7422,6 +7512,8 @@ _tmp_wm_median15.jpg
 09_331_podomoro-city-soho-capital_20171027085759_52352.jpeg
 09_337_mangkuluhur-city-mangkuluhur-city_20190215024430_89629.jpg
 09_337_mangkuluhur-tower-mangkuluhur-tower_20180416031759_71627.jpg
+09_341_menara-pertiwi-menara-pertiwi_20181015061434_56455.jpg
+09_342_sopo-del-tower-sopo-del-tower-a_20171212082141_43442.jpg
 09_347_menara-astra-menara-astra_20170404100719_48530.jpg
 09_347_menara-astra-menara-astra_20180420085908_93582.jpg
 09_350_pacific-century-premium-developments-pcpd-pacific-century-place-tower-pcp_20171024021924_49993.jpg
@@ -8047,6 +8139,7 @@ _tmp_wm_median15.jpg
 11_337_mangkuluhur-tower-mangkuluhur-tower_20180416031800_63406.jpg
 11_341_menara-pertiwi-menara-pertiwi_20181015061434_90247.jpg
 11_342_sopo-del-tower-sopo-del-tower-a_20171212082226_85024.jpg
+11_347_menara-astra-menara-astra_20170404100720_29578.jpg
 11_347_menara-astra-menara-astra_20180420085909_53143.jpg
 11_350_pacific-century-premium-developments-pcpd-pacific-century-place-tower-pcp_20171024022001_56235.jpeg
 11_351_sequis-tower-sequis-tower_20180416025436_20469.jpeg
@@ -8087,10 +8180,12 @@ _tmp_wm_median15.jpg
 11_435_wisma-prima-wisma-prima_20180420062449_36502.jpeg
 11_438_kemang-square-kemang-square_20180502061237_30179.jpg
 11_439_gp-plaza-gp-plaza_20170411033516_56926.jpg
+11_440_landmark-pluit-land-mark-pluit_20170125083824_58218.jpg
 11_440_landmark-pluit-land-mark-pluit_20180522040058_90838.jpg
 11_443_graha-lestari-graha-lestari_20180405025759_16507.jpg
 11_445_pakarti-center-building-pakarti-center-building_20170713012650_28864.jpg
 11_449_de-ploeit-centrale-de-ploeit-centrale_20180516090154_36149.jpeg
+11_452_the-koppel-building-the-koppel-building_20180516093505_63945.jpg
 11_453_gedung-ugm-samator-pendidikan-gedung-ugm-samator-pendidikan_20180530085521_64530.jpg
 11_454_wisma-adr-wisma-adr_20180516094232_24574.jpg
 11_455_wisma-akr-wisma-akr_20180412064030_47756.jpg
@@ -8444,6 +8539,7 @@ _tmp_wm_median15.jpg
 13_71_menara-dea-menara-dea-2_20170214040103_19115.jpeg
 13_75_noble-house-noble-house_20170428022757_19140.jpg
 13_78_axa-tower-axa-tower_20180412063015_17392.jpeg
+13_80_gedung-rifa-gedung-rifa_20180403100324_26187.jpg
 13_81_graha-paramita-graha-paramita_20190702024627_54712.jpg
 13_82_menara-standard-chartered-menara-standard-chartered_20170314085921_46219.jpg
 13_85_satrio-tower-satrio-tower_20170411094527_95573.jpg
@@ -8638,6 +8734,7 @@ _tmp_wm_median15.jpg
 13_zmot8x1c4meqkm85jlvj.jpg
 14_12_menara-jamsostek-menara-jamsostek-north-tower_20170125085208_61771.jpeg
 14_15_patra-jasa-patra-jasa_20170523100340_71366.jpg
+14_16_wisma-aldiron-dirgantara-wisma-aldiron-dirgantara_20170809021143_85002.jpg
 14_31_gama-tower-ex-cemindo-tower-gama-tower_20180201101214_93389.jpeg
 14_75_noble-house-noble-house_20170428022808_50084.jpeg
 14_81_graha-paramita-graha-paramita_20190702024628_20961.jpeg
@@ -8647,9 +8744,18 @@ _tmp_wm_median15.jpg
 14_107_mayapada-tower-mayapada-tower-1_20171212080243_60217.jpg
 14_108_mayapada-tower-mayapada-tower-2_20171114073624_67243.jpg
 14_111_mid-plaza-mid-plaza-2_20180301085556_25785.jpg
+14_112_office-8-office-8_20170314090220_98806.jpg
 14_115_plaza-bapindo-menara-mandiri-menara-mandiri-2_20180502044552_32358.jpg
 14_118_plaza-sentral-plaza-sentral_20180516065506_27363.jpg
+14_129_sona-topas-tower-sona-topas-tower_20170727092343_92976.jpg
 14_130_sudirman-plaza-indofood-tower_20170314084926_79365.jpg
+14_132_tamara-center-tamara-center_20180416090547_95040.jpg
+14_133_the-energy-building-the-energy-tower_20170713014836_93319.jpg
+14_134_wisma-46-wisma-46_20170217111704_83542.jpg
+14_136_wisma-bumiputera-wisma-bumiputera_20170214034603_50138.jpg
+14_137_wisma-gkbi-wisma-gkbi_20170320063342_41289.jpg
+14_142_world-trade-center-complex-world-trade-center-1_20171114081451_75690.jpg
+14_145_gedung-jaya-gedung-jaya_20170220025713_64342.jpg
 14_150_menara-thamrin-menara-thamrin_20170713012050_70830.jpeg
 14_153_plaza-permata-plaza-permata_20170727092748_61449.jpg
 14_155_sinarmas-land-plaza-ex-plaza-bii-sinarmas-land-plaza-menara-2_20171017064112_75212.jpg
@@ -8662,7 +8768,9 @@ _tmp_wm_median15.jpg
 14_166_gedung-graha-kencana-gedung-graha-kencana_20170712101510_77793.jpg
 14_167_sastra-graha-sastra-graha_20180913021952_64624.jpg
 14_169_puri-indah-financial-tower-puri-indah-financial-tower_20180227073831_21024.jpg
+14_170_apl-tower-apl-tower_20170320060556_60806.jpg
 14_172_grand-slipi-tower-grand-slipi-tower_20180323092144_42083.jpeg
+14_173_menara-citicon-menara-citicon_20170214043006_47103.jpg
 14_211_wisma-mra-wisma-mra_20180605093427_22177.jpeg
 14_212_graha-satria-tower-graha-satria-tower-1_20180904044854_75269.jpeg
 14_232_pondok-indah-office-tower-pondok-indah-office-tower-3_20171114081125_96391.jpeg
@@ -8670,6 +8778,7 @@ _tmp_wm_median15.jpg
 14_254_wisma-pmi-ex-gedung-treva-wisma-pmi_20180718062600_91435.jpeg
 14_255_gedung-victoria-gedung-victoria_20180718044101_30135.jpeg
 14_294_the-tower-the-tower_20180205040204_79540.jpeg
+14_353_world-trade-center-complex-world-trade-center-3_20170313030400_88631.jpg
 14_366_zuria-tower-zuria-tower_20181115021318_48899.jpeg
 14_369_cowell-tower-ex-graha-atrium-cowell-tower_20180522040732_24125.jpeg
 14_401_st-moritz-office-tower-lippo-st-moritz-office-tower_20171212082449_91124.jpeg
