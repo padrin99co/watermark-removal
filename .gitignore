@@ -7,6 +7,8 @@ __pycache__/
 .env.*
 !.env.example
 .codex-*/
+.codex_home/
+codex-home/
 .thumb*
 .mask*
 *tmp*
@@ -22,7 +24,7 @@ c/
 tmp/
 clean-images/*
 !clean-images/.gitkeep
-raw-images/*
+raw-images*/*
 !raw-images/.gitkeep
 logs/*
 !logs/.gitkeep
