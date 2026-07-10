@@ -41,9 +41,12 @@ def read_rows(workbook):
             element.clear()
 
 
+def reference_urls(text):
+    return re.findall(r"https?://[^'\s,}\]]+", text or "")
+
+
 def reference_files(text):
-    urls = re.findall(r"https?://[^'\s,}\]]+", text or "")
-    return [Path(unquote(urlparse(url).path)).name for url in urls]
+    return [Path(unquote(urlparse(url).path)).name for url in reference_urls(text)]
 
 
 def parse_counts(text):
@@ -66,12 +69,14 @@ def load_venues(workbook):
         content_url = row.get("strapiContentUrl", "")
         match = re.search(r"/(\d+)$", content_url)
         references = {category: reference_files(row.get(column, "")) for column, category in CATEGORIES.items()}
+        urls = {category: reference_urls(row.get(column, "")) for column, category in CATEGORIES.items()}
         venues.append({
             "buildingId": str(row.get("buildingId", "")),
             "buildingName": row.get("buildingName", ""),
             "officeVenueId": int(match.group(1)) if match else None,
             "gaps": parse_counts(row.get("totalPhotos", "")),
             "references": references,
+            "referenceUrls": urls,
             "originalReason": row.get("reason", ""),
         })
     return venues
@@ -123,8 +128,13 @@ def classify(venue, assets, statuses):
     if complete_groups:
         (report_path, report_office), candidates = complete_groups[-1]
     else:
-        report_path = report_office = ""
-        candidates = []
+        latest_by_name = {}
+        for asset in matching_assets:
+            if asset.get("filename", "") in reference_names:
+                latest_by_name[asset["filename"]] = asset
+        candidates = list(latest_by_name.values()) if reference_names.issubset(latest_by_name) else []
+        report_path = ""
+        report_office = f"building-{venue['buildingId']}-exact-assets" if candidates else ""
 
     missing_status = sorted(name for name in reference_names if statuses.get(name) not in {"Done", "Skipped"})
     zero_gaps = all(venue["gaps"][category]["strapi"] == 0 for category in gap_categories)
