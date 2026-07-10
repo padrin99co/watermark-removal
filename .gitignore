@@ -26,6 +26,10 @@ clean-images/*
 !clean-images/.gitkeep
 raw-images*/*
 !raw-images/.gitkeep
+downloaded-image/*
+!downloaded-image/.gitkeep
+donwloaded-image/*
+!donwloaded-image/.gitkeep
 logs/*
 !logs/.gitkeep
 !logs/status.tsv
