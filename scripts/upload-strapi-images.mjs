@@ -259,10 +259,12 @@ async function collectImages(rootDir) {
 
 function parseLocalImage(filePath, rootDir) {
   const relativePath = path.relative(rootDir, filePath);
+  const pathSlug = getContentSlugFromRelativePath(relativePath);
   const filename = path.basename(filePath);
   const ext = path.extname(filename);
   const stem = filename.slice(0, -ext.length);
   const match = filename.match(/^(\d+)_([^_]+)_(.+)_(\d{14})_(\d+)\.[^.]+$/i);
+  const noOfficeIdMatch = filename.match(/^(\d+)_(.+)_(\d{14})_(\d+)\.[^.]+$/i);
   const exteriorMatch = filename.match(/^(\d+)_(.+)-exterior-\d+-\d+\.[^.]+$/i);
 
   if (match) {
@@ -274,8 +276,22 @@ function parseLocalImage(filePath, rootDir) {
       ext,
       sequence: Number(match[1]),
       officeId: match[2],
-      rawSlug: cleanOfficeSlug(match[3]),
+      rawSlug: pathSlug || cleanOfficeSlug(match[3]),
       capturedAt: match[4],
+    };
+  }
+
+  if (noOfficeIdMatch) {
+    return {
+      filePath,
+      relativePath,
+      filename,
+      stem,
+      ext,
+      sequence: Number(noOfficeIdMatch[1]),
+      officeId: '',
+      rawSlug: pathSlug || cleanOfficeSlug(noOfficeIdMatch[2]),
+      capturedAt: noOfficeIdMatch[3],
     };
   }
 
@@ -288,7 +304,7 @@ function parseLocalImage(filePath, rootDir) {
       ext,
       sequence: Number(exteriorMatch[1]),
       officeId: '',
-      rawSlug: cleanOfficeSlug(exteriorMatch[2]),
+      rawSlug: pathSlug || cleanOfficeSlug(exteriorMatch[2]),
     };
   }
 
@@ -300,8 +316,25 @@ function parseLocalImage(filePath, rootDir) {
     ext,
     sequence: 0,
     officeId: '',
-    rawSlug: cleanOfficeSlug(stem),
+    rawSlug: pathSlug || cleanOfficeSlug(stem),
   };
+}
+
+function getContentSlugFromRelativePath(relativePath) {
+  const parts = String(relativePath)
+    .split(path.sep)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length >= 3 && isImageCategory(parts[1])) {
+    return cleanOfficeSlug(parts[0]);
+  }
+
+  return '';
+}
+
+function isImageCategory(value) {
+  return ['interior', 'exterior', 'floorplan', 'floor-plan'].includes(normalizeKey(value));
 }
 
 function cleanOfficeSlug(value) {
@@ -1144,7 +1177,7 @@ function printSummary({ imageCount, allGroups, selectedGroups, knownFolders, dry
   if (hasApiConfig) {
     console.log(`Matched against ${knownFolders.length} existing Strapi folder(s) under the root folder.`);
   } else {
-    console.log('No Strapi API config provided, so office names are resolved from filenames only.');
+    console.log('No Strapi API config provided, so office names are resolved from local paths or filenames only.');
   }
 
   console.log(`Selected ${selectedGroups.length} office folder(s):`);

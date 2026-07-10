@@ -82,6 +82,8 @@ Preview upload without changing Strapi:
 make upload-strapi-images-dry-run
 ```
 
+Upload folder names are resolved from the local content slug when images are arranged as `clean-images/<slug>/<category>/<file>`. For example, files under `clean-images/centennial-tower/interior/`, `clean-images/centennial-tower/exterior/`, and `clean-images/centennial-tower/floorplan/` upload to `Media Library/Office Venue/centennial-tower`. If that layout is not present, the upload script falls back to the filename-derived slug.
+
 ## Report Folder Structure
 
 | Path | Purpose |
