@@ -57,3 +57,4 @@ logs/*
 /telea_like_candidate*.jpg
 /thr_*_mask_preview.jpg
 /watermark_grid_crop.jpg
+/.worktrees/
