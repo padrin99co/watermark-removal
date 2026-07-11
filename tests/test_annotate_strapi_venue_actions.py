@@ -65,7 +65,17 @@ class AnnotateWorkbookTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "actions.json"
             path.write_text(json.dumps({"70": {"action": "already fixed"}}))
-            self.assertEqual(MODULE.load_actions(path), {"70": "already fixed"})
+            self.assertEqual(MODULE.load_actions(path), {"70": {"action": "already fixed"}})
+
+    def test_updates_status_and_reason_from_record(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = build_fixture(root / "source.xlsx")
+            output = root / "output.xlsx"
+            MODULE.annotate_workbook(source, output, {"70": {"status": "OK", "reason": "Counts match", "action": "already fixed"}})
+            self.assertEqual(cell(output, "L2"), "OK")
+            self.assertEqual(cell(output, "M2"), "Counts match")
+            self.assertEqual(cell(output, "N2"), "already fixed")
 
 
 if __name__ == "__main__":

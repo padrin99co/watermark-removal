@@ -25,6 +25,15 @@ def inline_cell(reference, value):
     return cell
 
 
+def set_inline_text(cell, value):
+    for child in list(cell):
+        cell.remove(child)
+    cell.set("t", "inlineStr")
+    inline = ET.SubElement(cell, q("is"))
+    text = ET.SubElement(inline, q("t"))
+    text.text = str(value)
+
+
 def cell_text(cell):
     return "".join(node.text or "" for node in cell.iter(q("t")))
 
@@ -46,6 +55,18 @@ def annotate_sheet(data, actions):
             value = None
         if value is None:
             continue
+        if isinstance(value, dict):
+            for column, field in (("L", "status"), ("M", "reason")):
+                replacement = value.get(field)
+                if replacement is None:
+                    continue
+                existing = row.find(f"{q('c')}[@r='{column}{row_number}']")
+                if existing is None:
+                    existing = inline_cell(f"{column}{row_number}", replacement)
+                    row.append(existing)
+                else:
+                    set_inline_text(existing, replacement)
+            value = value.get("action", "")
         existing = row.find(f"{q('c')}[@r='N{row_number}']")
         if existing is not None:
             row.remove(existing)
@@ -87,8 +108,12 @@ def load_actions(path):
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
     actions = {}
     for building_id, value in payload.items():
-        action = value.get("action", "") if isinstance(value, dict) else value
-        actions[str(building_id)] = str(action)
+        if isinstance(value, dict):
+            actions[str(building_id)] = {
+                key: str(value[key]) for key in ("status", "reason", "action") if value.get(key) is not None
+            }
+        else:
+            actions[str(building_id)] = str(value)
     return actions
 
 
