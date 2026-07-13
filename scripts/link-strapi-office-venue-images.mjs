@@ -119,13 +119,13 @@ async function linkVenueGroup({ client, options, venueGroup }) {
   const beforeEntry = await getOfficeVenueEntry(client, entryId);
   venueGroup.entry = beforeEntry;
   const existingComponents = normalizeComponentList(getEntryField(beforeEntry, options.contentField));
-  const { existingAssetIds, missingAssets, payloadComponents } = buildAppendPlan(existingComponents, venueGroup.assets, options);
+  const { existingAssetIds, missingAssets, requiredAssets, payloadComponents } = buildAppendPlan(existingComponents, venueGroup.assets, options, venueGroup.expected);
 
   console.log(`\nOffice Venue ${beforeEntry.id} (${venueGroup.officeName})`);
   console.log(`Field: ${options.contentField}`);
   console.log(`Report assets: ${venueGroup.assets.length}`);
   console.log(`Existing imageUrl media IDs: ${[...existingAssetIds].sort((a, b) => a - b).join(', ') || 'none'}`);
-  console.log(`Already linked: ${venueGroup.assets.length - missingAssets.length}`);
+  console.log(`Already linked: ${requiredAssets.length - missingAssets.length}`);
   console.log(`To append: ${missingAssets.length}`);
   for (const asset of missingAssets) {
     console.log(`- append ${asset.filename} as ${asset.subType} (${asset.category})`);
@@ -142,9 +142,8 @@ async function linkVenueGroup({ client, options, venueGroup }) {
   }
 
   const afterComponents = normalizeComponentList(getEntryField(afterEntry, options.contentField));
-  const afterAssetIds = new Set(afterComponents.flatMap(getComponentImageUrlIds));
-  const linkedAssets = venueGroup.assets.filter((asset) => afterAssetIds.has(asset.id));
-  const missingAfterUpdate = venueGroup.assets.filter((asset) => !afterAssetIds.has(asset.id));
+  const linkedAssets = requiredAssets.filter((asset) => isAssetRepresented(afterComponents, asset));
+  const missingAfterUpdate = requiredAssets.filter((asset) => !isAssetRepresented(afterComponents, asset));
 
   console.log(`Verified linked: ${linkedAssets.length}`);
   if (missingAfterUpdate.length > 0) {
@@ -154,14 +153,74 @@ async function linkVenueGroup({ client, options, venueGroup }) {
   return { venueGroup, entry: beforeEntry, afterEntry, missingAssets, linkedAssets, missingAfterUpdate, didUpdate };
 }
 
-export function buildAppendPlan(existingComponents, assets, options) {
+export function buildAppendPlan(existingComponents, assets, options, expected = null) {
   const existingAssetIds = new Set(existingComponents.flatMap(getComponentImageUrlIds));
-  const missingAssets = assets.filter((asset) => !existingAssetIds.has(asset.id));
+  const representedAssets = assets.filter((asset) => isAssetRepresented(existingComponents, asset));
+  const candidates = assets.filter((asset) => !isAssetRepresented(existingComponents, asset));
+  let missingAssets = candidates;
+  if (expected) {
+    const actual = countComponentsByCategory(existingComponents);
+    const remaining = Object.fromEntries(Object.entries(expected).map(([category, count]) => [category, Math.max(0, Number(count) - (actual[category] || 0))]));
+    missingAssets = candidates.filter((asset) => {
+      const category = asset.category || 'exterior';
+      if (!remaining[category]) {
+        return false;
+      }
+      remaining[category] -= 1;
+      return true;
+    });
+  }
   const payloadComponents = [
     ...existingComponents.map(normalizeExistingImageComponent),
     ...missingAssets.map((asset) => buildNewImageComponent(options, asset)),
   ];
-  return { existingAssetIds, missingAssets, payloadComponents };
+  return { existingAssetIds, missingAssets, requiredAssets: [...representedAssets, ...missingAssets], payloadComponents };
+}
+
+function isAssetRepresented(components, asset) {
+  const assetKeys = imageReferenceKeys(asset.filename || asset.assetName || '');
+  return normalizeComponentList(components).some((component) => {
+    if ((component.subType || component.sub_type || DEFAULT_COMPONENT_SUB_TYPE) !== (asset.subType || DEFAULT_COMPONENT_SUB_TYPE)) {
+      return false;
+    }
+    return getMediaItems(component.imageUrl).some((media) => {
+      if (getEntityId(media) === asset.id) {
+        return true;
+      }
+      const mediaKeys = imageReferenceKeys(media?.name || media?.filename || '');
+      return [...assetKeys].some((key) => mediaKeys.has(key));
+    });
+  });
+}
+
+function getMediaItems(value) {
+  if (!value) {
+    return [];
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap(getMediaItems);
+  }
+  if (Array.isArray(value.data)) {
+    return value.data.flatMap(getMediaItems);
+  }
+  if (value.data) {
+    return getMediaItems(value.data);
+  }
+  if (value.attributes) {
+    return [{ id: value.id, ...value.attributes }];
+  }
+  return [value];
+}
+
+function imageReferenceKeys(value) {
+  let filename = path.basename(String(value || '')).trim().toLowerCase();
+  filename = filename.replace(/\.(?:jpe?g|png|webp|gif|bmp|tiff?)$/i, '');
+  const keys = new Set(filename ? [filename] : []);
+  const withoutSequence = filename.replace(/^\d+_/, '');
+  if (withoutSequence && withoutSequence !== filename) {
+    keys.add(withoutSequence);
+  }
+  return keys;
 }
 
 function parseOptions(argv) {

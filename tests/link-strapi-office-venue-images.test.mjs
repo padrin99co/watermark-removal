@@ -42,6 +42,45 @@ test('append plan preserves components and skips already-linked IDs', () => {
 });
 
 
+test('append plan skips a clean asset already represented by a sequenced legacy filename', () => {
+  const existing = [{
+    id: 6,
+    source: 'Rumah123',
+    type: 'Top Preview',
+    subType: 'Foto Lainnya',
+    imageUrl: [{ id: 50, name: '01_7_graha-mustika-ratu_20180416093838_75744.jpg' }],
+  }];
+  const assets = [{
+    id: 90,
+    filename: '7_graha-mustika-ratu_20180416093838_75744.jpg',
+    category: 'interior',
+    subType: 'Foto Lainnya',
+  }];
+  const plan = buildAppendPlan(existing, assets, { source: 'Rumah123', type: 'Top Preview', subType: 'Fasad Gedung' });
+  assert.deepEqual(plan.missingAssets, []);
+  assert.equal(plan.payloadComponents.length, 1);
+});
+
+
+test('append plan limits each category to the fresh workbook deficit', () => {
+  const existing = [{ id: 7, subType: 'Foto Lainnya', imageUrl: [{ id: 50, name: 'legacy.jpg' }] }];
+  const assets = [
+    { id: 91, filename: 'one.jpg', category: 'interior', subType: 'Foto Lainnya' },
+    { id: 92, filename: 'two.jpg', category: 'interior', subType: 'Foto Lainnya' },
+    { id: 93, filename: 'three.jpg', category: 'interior', subType: 'Foto Lainnya' },
+  ];
+  const plan = buildAppendPlan(
+    existing,
+    assets,
+    { source: 'Rumah123', type: 'Top Preview', subType: 'Fasad Gedung' },
+    { exterior: 0, interior: 2, floorplan: 0 },
+  );
+  assert.deepEqual(plan.missingAssets.map((asset) => asset.id), [91]);
+  assert.deepEqual(plan.requiredAssets.map((asset) => asset.id), [91]);
+  assert.equal(plan.payloadComponents.length, 2);
+});
+
+
 test('category counts are derived from component subtype without mutation', () => {
   const components = [
     { subType: 'Fasad Gedung', imageUrl: { id: 1 } },
