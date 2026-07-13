@@ -2,6 +2,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif']);
 const DEFAULT_PAGE_SIZE = 100;
@@ -365,10 +366,23 @@ function groupImagesByOffice(imageFiles, knownFolders) {
     .sort((a, b) => a.officeName.localeCompare(b.officeName, 'en', { numeric: true }));
 }
 
-function resolveOfficeName(rawSlug, knownNames) {
+export function resolveOfficeName(rawSlug, knownNames) {
+  const derived = deriveOfficeName(rawSlug);
+  if (derived !== rawSlug) {
+    return knownNames.find((name) => normalizeKey(name) === normalizeKey(derived)) || derived;
+  }
+
   const exact = knownNames.find((name) => normalizeKey(name) === normalizeKey(rawSlug));
   if (exact) {
     return exact;
+  }
+
+  const prefixMatch = knownNames
+    .filter((name) => normalizeKey(rawSlug).startsWith(`${normalizeKey(name)}-`))
+    .sort((a, b) => b.length - a.length)[0];
+
+  if (prefixMatch) {
+    return prefixMatch;
   }
 
   const suffixMatch = knownNames
@@ -382,7 +396,12 @@ function resolveOfficeName(rawSlug, knownNames) {
   return deriveOfficeName(rawSlug);
 }
 
-function deriveOfficeName(rawSlug) {
+export function deriveOfficeName(rawSlug) {
+  const categoryTimestamp = rawSlug.match(/^(.*?)-(?:interior|exterior|floor-?plan)-(?:\d{10,})(?:-\d+)?$/i);
+  if (categoryTimestamp?.[1]) {
+    return categoryTimestamp[1].replace(/^-+|-+$/g, '');
+  }
+
   const tokens = rawSlug.split('-').filter(Boolean);
   if (tokens.length < 3) {
     return rawSlug;
@@ -1234,7 +1253,9 @@ class HttpError extends Error {
   }
 }
 
-main().catch((error) => {
-  console.error(error.message);
-  process.exitCode = 1;
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  main().catch((error) => {
+    console.error(error.message);
+    process.exitCode = 1;
+  });
+}
