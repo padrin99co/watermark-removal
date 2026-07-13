@@ -98,7 +98,11 @@ def normalize_filename(value):
 
 @lru_cache(maxsize=None)
 def normalize_stem(value):
-    return Path(normalize_filename(value)).stem
+    filename = normalize_filename(value)
+    for extension in (".jpeg", ".jpg", ".png", ".webp", ".gif", ".bmp", ".tiff", ".tif"):
+        if filename.endswith(extension):
+            return filename[:-len(extension)]
+    return filename
 
 
 def select_reference_asset(reference_filename, category, clean_filenames, assets):

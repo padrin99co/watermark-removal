@@ -73,6 +73,15 @@ class MappingTests(unittest.TestCase):
         self.assertEqual(result["assetId"], 12)
         self.assertEqual(result["match"], "normalized_stem")
 
+    def test_extensionless_reference_with_dots_is_not_treated_as_an_extension(self):
+        module = load_module()
+        reference = "-the-st.-regis-office-tower-exterior-1670811793076-0"
+        clean = f"{reference}.jpg"
+        assets = [{"filename": clean, "local_category": "exterior", "strapi_asset_id": "13", "status": "uploaded", "strapi_asset_name": clean}]
+        result = module.select_reference_asset(reference, "exterior", [clean], assets)
+        self.assertEqual(result["assetId"], 13)
+        self.assertEqual(result["match"], "normalized_stem")
+
     def test_rejects_cross_venue_asset_reuse(self):
         module = load_module()
         manifest = {
