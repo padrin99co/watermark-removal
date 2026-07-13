@@ -2,6 +2,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const DEFAULT_STRAPI_BASE_URL = 'https://cms.develop.99iddev.net';
 const PRODUCTION_STRAPI_BASE_URL = 'https://cms.rumah123.com';
@@ -33,23 +34,43 @@ async function main() {
 
   await confirmProductionAccess(options);
 
-  if (!options.reportPath) {
-    options.reportPath = await findLatestReport(options.reportDir);
-  }
+  const client = createClient(options);
+  let csvPath = '';
+  let markdownPath = '';
+  let assets = [];
+  let resolved;
 
-  const csvPath = getCsvReportPath(options.reportPath);
-  const markdownPath = getMarkdownReportPath(options.reportPath);
-  const rows = parseCsv(await fs.readFile(csvPath, 'utf8'));
-  const assets = filterAssetsByOffice(getSuccessfulAssets(rows), options.officeFilters);
+  if (options.mappingManifest) {
+    const manifest = JSON.parse(await fs.readFile(options.mappingManifest, 'utf8'));
+    const manifestGroups = buildManifestVenueGroups(manifest);
+    assets = manifestGroups.flatMap((group) => group.assets);
+    resolved = {
+      venueGroups: await Promise.all(manifestGroups.map(async (group) => ({
+        ...group,
+        entry: await getOfficeVenueEntry(client, group.officeVenueId),
+      }))),
+      skippedGroups: [],
+    };
+  } else {
+    if (!options.reportPath) {
+      options.reportPath = await findLatestReport(options.reportDir);
+    }
+    csvPath = getCsvReportPath(options.reportPath);
+    markdownPath = getMarkdownReportPath(options.reportPath);
+    const rows = parseCsv(await fs.readFile(csvPath, 'utf8'));
+    assets = filterAssetsByOffice(getSuccessfulAssets(rows), options.officeFilters);
+    if (assets.length === 0) {
+      throw new Error(`No uploaded/skipped Strapi asset IDs found in ${csvPath}${options.officeFilters.length ? ` for office filter(s): ${options.officeFilters.join(', ')}` : ''}`);
+    }
+    resolved = options.officeVenueId
+      ? { venueGroups: [{ officeName: `office-venue-${options.officeVenueId}`, assets, entry: await getOfficeVenueEntry(client, options.officeVenueId) }], skippedGroups: [] }
+      : await resolveVenueGroups(client, assets, options.matchField);
+  }
 
   if (assets.length === 0) {
-    throw new Error(`No uploaded/skipped Strapi asset IDs found in ${csvPath}${options.officeFilters.length ? ` for office filter(s): ${options.officeFilters.join(', ')}` : ''}`);
+    throw new Error('No Strapi assets selected for linking.');
   }
 
-  const client = createClient(options);
-  const resolved = options.officeVenueId
-    ? { venueGroups: [{ officeName: `office-venue-${options.officeVenueId}`, assets, entry: await getOfficeVenueEntry(client, options.officeVenueId) }], skippedGroups: [] }
-    : await resolveVenueGroups(client, assets, options.matchField);
   const { venueGroups, skippedGroups } = resolved;
   const results = [];
 
@@ -67,7 +88,14 @@ async function main() {
     console.log(`Missing after verification: ${totalMissing}`);
   }
 
-  if (!options.noReport) {
+  let verification = null;
+  if (options.verificationOutput) {
+    verification = await writeVerificationReport(options.verificationOutput, results);
+    console.log(`Verification report: ${options.verificationOutput}`);
+    console.log(`NOK venues after fresh reads: ${verification.nokVenues}`);
+  }
+
+  if (!options.noReport && markdownPath) {
     await appendMarkdownRelationReport(markdownPath, {
       options,
       csvPath,
@@ -77,7 +105,7 @@ async function main() {
     });
   }
 
-  if (!options.dryRun && totalMissing > 0) {
+  if (!options.dryRun && (totalMissing > 0 || (verification && verification.nokVenues > 0))) {
     process.exitCode = 1;
   }
 }
@@ -91,12 +119,7 @@ async function linkVenueGroup({ client, options, venueGroup }) {
   const beforeEntry = await getOfficeVenueEntry(client, entryId);
   venueGroup.entry = beforeEntry;
   const existingComponents = normalizeComponentList(getEntryField(beforeEntry, options.contentField));
-  const existingAssetIds = new Set(existingComponents.flatMap(getComponentImageUrlIds));
-  const missingAssets = venueGroup.assets.filter((asset) => !existingAssetIds.has(asset.id));
-  const payloadComponents = [
-    ...existingComponents.map(normalizeExistingImageComponent),
-    ...missingAssets.map((asset) => buildNewImageComponent(options, asset)),
-  ];
+  const { existingAssetIds, missingAssets, payloadComponents } = buildAppendPlan(existingComponents, venueGroup.assets, options);
 
   console.log(`\nOffice Venue ${beforeEntry.id} (${venueGroup.officeName})`);
   console.log(`Field: ${options.contentField}`);
@@ -128,7 +151,17 @@ async function linkVenueGroup({ client, options, venueGroup }) {
     console.log(`Missing after verification: ${missingAfterUpdate.length}`);
   }
 
-  return { venueGroup, entry: beforeEntry, missingAssets, linkedAssets, missingAfterUpdate, didUpdate };
+  return { venueGroup, entry: beforeEntry, afterEntry, missingAssets, linkedAssets, missingAfterUpdate, didUpdate };
+}
+
+export function buildAppendPlan(existingComponents, assets, options) {
+  const existingAssetIds = new Set(existingComponents.flatMap(getComponentImageUrlIds));
+  const missingAssets = assets.filter((asset) => !existingAssetIds.has(asset.id));
+  const payloadComponents = [
+    ...existingComponents.map(normalizeExistingImageComponent),
+    ...missingAssets.map((asset) => buildNewImageComponent(options, asset)),
+  ];
+  return { existingAssetIds, missingAssets, payloadComponents };
 }
 
 function parseOptions(argv) {
@@ -144,6 +177,8 @@ function parseOptions(argv) {
   return {
     help: hasFlag(parsed, 'help') || hasFlag(parsed, 'h'),
     reportPath,
+    mappingManifest: getValue(parsed, 'mapping-manifest') || process.env.STRAPI_MAPPING_MANIFEST || '',
+    verificationOutput: getValue(parsed, 'verification-output') || process.env.STRAPI_VERIFICATION_OUTPUT || '',
     reportDir: path.resolve(getValue(parsed, 'report-dir') || process.env.STRAPI_REPORT_DIR || 'logs/strapi-upload-reports'),
     baseUrl,
     token: getValue(parsed, 'token') || process.env.STRAPI_ADMIN_JWT || '',
@@ -345,6 +380,41 @@ async function resolveVenueGroups(client, assets, matchField) {
   return { venueGroups, skippedGroups };
 }
 
+export function buildManifestVenueGroups(manifest) {
+  if (!manifest || !Array.isArray(manifest.venues)) {
+    throw new Error('Mapping manifest must contain a venues array.');
+  }
+  if (Array.isArray(manifest.unresolved) && manifest.unresolved.length > 0) {
+    throw new Error(`Mapping manifest contains ${manifest.unresolved.length} unresolved reference(s).`);
+  }
+
+  return manifest.venues
+    .filter((venue) => Array.isArray(venue.assets) && venue.assets.length > 0)
+    .map((venue) => {
+      const officeVenueId = getEntityId(venue.officeVenueId);
+      if (!officeVenueId) {
+        throw new Error(`Manifest venue ${venue.buildingId || venue.buildingName || 'unknown'} has no Office Venue ID.`);
+      }
+      return {
+        officeVenueId,
+        officeName: venue.buildingName || `office-venue-${officeVenueId}`,
+        buildingId: String(venue.buildingId || ''),
+        expected: venue.expected || {},
+        before: venue.before || {},
+        assets: venue.assets.map((asset) => ({
+          id: getEntityId(asset.assetId),
+          filename: asset.cleanFilename || asset.referenceFilename || '',
+          assetName: asset.strapiFilename || '',
+          url: asset.strapiUrl || '',
+          folder: asset.reportPath || '',
+          category: asset.category || 'exterior',
+          subType: SUB_TYPE_BY_CATEGORY.get(asset.category) || DEFAULT_COMPONENT_SUB_TYPE,
+          status: 'manifest',
+        })),
+      };
+    });
+}
+
 function groupAssetsByOffice(assets) {
   const groups = new Map();
   for (const asset of assets) {
@@ -420,6 +490,51 @@ function getMediaIds(value) {
 
 function getComponentImageUrlIds(component) {
   return getMediaIds(component?.imageUrl);
+}
+
+export function countComponentsByCategory(components) {
+  const counts = { exterior: 0, interior: 0, floorplan: 0 };
+  const categoryBySubType = new Map([
+    ['Fasad Gedung', 'exterior'],
+    ['Foto Lainnya', 'interior'],
+    ['Denah Ruang', 'floorplan'],
+  ]);
+  for (const component of normalizeComponentList(components)) {
+    const category = categoryBySubType.get(component.subType || component.sub_type);
+    if (category) {
+      counts[category] += Math.max(1, getComponentImageUrlIds(component).length);
+    }
+  }
+  return counts;
+}
+
+async function writeVerificationReport(outputPath, results) {
+  const venues = results.map((result) => {
+    const actual = countComponentsByCategory(getEntryField(result.afterEntry, 'image'));
+    const expected = result.venueGroup.expected || {};
+    const deficits = Object.fromEntries(Object.entries(expected)
+      .filter(([category, count]) => (actual[category] || 0) < Number(count))
+      .map(([category, count]) => [category, Number(count) - (actual[category] || 0)]));
+    return {
+      buildingId: result.venueGroup.buildingId || '',
+      buildingName: result.venueGroup.officeName,
+      officeVenueId: getEntityId(result.afterEntry),
+      expected,
+      actual,
+      deficits,
+      selectedAssetIds: result.venueGroup.assets.map((asset) => asset.id),
+      appendedAssetIds: result.missingAssets.map((asset) => asset.id),
+      verifiedAssetIds: result.linkedAssets.map((asset) => asset.id),
+    };
+  });
+  const report = {
+    generatedAt: new Date().toISOString(),
+    nokVenues: venues.filter((venue) => Object.keys(venue.deficits).length > 0).length,
+    venues,
+  };
+  await fs.mkdir(path.dirname(path.resolve(outputPath)), { recursive: true });
+  await fs.writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  return report;
 }
 
 function getEntityId(value) {
@@ -675,6 +790,8 @@ Required:
 
 Common options:
   --report <path>              Strapi upload report CSV or Markdown path. Defaults to latest CSV in report dir.
+  --mapping-manifest <path>    Explicit workbook-to-asset mapping JSON; bypasses office slug matching.
+  --verification-output <path> Write fresh per-category count verification JSON.
   --report-dir <path>          Report directory. Defaults to logs/strapi-upload-reports.
   --base-url <url>             Strapi base URL. Defaults to ${DEFAULT_STRAPI_BASE_URL}.
   --token <jwt>                Strapi admin JWT. Prefer STRAPI_ADMIN_JWT env var.
@@ -693,6 +810,8 @@ Environment variables:
   STRAPI_ADMIN_JWT=<admin-jwt-from-browser-or-admin-api>
   STRAPI_REPORT_DIR=logs/strapi-upload-reports
   STRAPI_UPLOAD_REPORT=logs/strapi-upload-reports/strapi-upload-report-....csv # optional override
+  STRAPI_MAPPING_MANIFEST=logs/strapi-venue-image-mapping.json
+  STRAPI_VERIFICATION_OUTPUT=logs/strapi-venue-image-link-verification.json
   STRAPI_OFFICE=graha-cimb-niaga
   STRAPI_OFFICE_VENUE_MATCH_FIELD=slug
   STRAPI_OFFICE_VENUE_ID=99 # optional override
@@ -700,7 +819,9 @@ Environment variables:
 `);
 }
 
-main().catch((error) => {
-  console.error(error.message);
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  main().catch((error) => {
+    console.error(error.message);
+    process.exit(1);
+  });
+}
